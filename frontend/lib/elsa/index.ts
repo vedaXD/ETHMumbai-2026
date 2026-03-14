@@ -17,12 +17,12 @@ export class HeyElsaService {
 
     console.log(`[HeyElsa] Decision reached: ${decision} ${amount} ${asset}`);
 
-    // Create a trade intent
+    // Create a trade intent in the format BitGoService expects
     const intent = {
-      type: decision,
-      asset,
+      // Uniswap V3 SwapRouter on Base Sepolia — the recipient of the swap tx
+      to: '0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4',
       amount,
-      targetChain: 'Base Sepolia'
+      data: `${decision},${asset},Base Sepolia`, // metadata encoded in data field
     };
 
     // Submit intent to BitGo for policy enforcement and transaction signing

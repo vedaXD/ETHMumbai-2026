@@ -46,7 +46,6 @@ export class BitGoServerService {
       passphrase: process.env.BITGO_WALLET_PASSPHRASE || 'default-passphrase',
       enterprise: enterpriseId,
       walletVersion: 3,
-      newFeeAddress: true,
     });
 
     const wallet = walletResult.wallet;

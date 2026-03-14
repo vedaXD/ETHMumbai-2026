@@ -8,6 +8,8 @@ import AppLayout from '@/components/shared/AppLayout';
 import { BotMessageSquare, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import { useWallet } from '@/lib/WalletContext';
 
+type ModalType = 'fund' | 'withdraw' | 'personality' | null;
+
 const PERSONALITY_STYLES: Record<string, { icon: any; color: string; bg: string; border: string }> = {
   aggressive: { icon: Zap,    color: 'text-amber-400',   bg: 'bg-amber-400/10',   border: 'border-amber-400/50' },
   conservative: { icon: Shield, color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/50' },
@@ -26,6 +28,7 @@ export default function MonitorAgents() {
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [inputValue, setInputValue] = useState('');
+  const [amount, setAmount] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {

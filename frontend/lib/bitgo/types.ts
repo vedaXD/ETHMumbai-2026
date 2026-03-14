@@ -184,25 +184,3 @@ export interface BitGoWebhook {
   hash?: string;
   transfer?: any;
 }
-
-// Export all types
-export type {
-  BitGoWallet,
-  WalletBalance,
-  WalletDetails,
-  TradeIntent,
-  TransactionResult,
-  TransactionHistory,
-  Transaction,
-  PolicyRule,
-  PolicyCondition,
-  PolicyAction,
-  TradingAgent,
-  NetworkConfig,
-  BitGoConfig,
-  BitGoWalletParams,
-  GasEstimation,
-  UseBitGoWalletReturn,
-  BitGoError,
-  BitGoWebhook,
-};

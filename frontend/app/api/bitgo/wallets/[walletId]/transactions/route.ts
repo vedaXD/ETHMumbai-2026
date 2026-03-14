@@ -7,10 +7,10 @@ import { BitGoServerService } from '@/lib/bitgo/server';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { walletId: string } }
+  { params }: { params: Promise<{ walletId: string }> }
 ) {
   try {
-    const walletId = params.walletId;
+    const { walletId } = await params;
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
 
