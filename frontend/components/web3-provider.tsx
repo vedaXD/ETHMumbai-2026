@@ -9,7 +9,8 @@ import { WalletProvider } from '@/lib/WalletContext'
 const config = createConfig({
   chains: [sepolia],
   transports: {
-    [sepolia.id]: http(),
+    // Use a reliable public RPC so ENS name lookups work
+    [sepolia.id]: http('https://rpc.ankr.com/eth_sepolia'),
   },
 })
 

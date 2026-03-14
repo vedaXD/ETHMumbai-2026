@@ -14,7 +14,7 @@ const ROTATING_WORDS = ["autonomous.", "on-chain.", "peer-to-peer.", "gasless."]
 
 export default function Home() {
   const router = useRouter();
-  const { address, connecting, connect } = useWallet();
+  const { address, connecting, connectStep, connect } = useWallet();
   const [showSplash, setShowSplash] = useState(true);
   const [wordIndex, setWordIndex] = useState(0);
 
@@ -118,7 +118,7 @@ export default function Home() {
                 disabled={connecting}
                 className="px-5 py-1.5 bg-white/10 border border-white/10 text-white text-xs font-medium rounded-full hover:bg-white hover:text-black transition-all duration-200 disabled:opacity-50"
               >
-                {connecting ? 'Connecting...' : address ? `${address.slice(0,6)}...${address.slice(-4)}` : 'Connect Wallet'}
+                {connecting ? (connectStep || 'Connecting...') : address ? `${address.slice(0,6)}...${address.slice(-4)}` : 'Connect Wallet'}
               </button>
           </div>
         </div>
