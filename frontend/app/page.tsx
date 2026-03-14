@@ -1,135 +1,162 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Hyperspeed from "@/components/shared/Hyperspeed";
+import SplashScreen from "@/components/shared/SplashScreen";
+import { ArrowRight } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const splashShown = sessionStorage.getItem('splashShown');
+    if (splashShown) {
+      setShowSplash(false);
+    }
+  }, []);
+
+  const handleSplashComplete = () => {
+    sessionStorage.setItem('splashShown', 'true');
+    setShowSplash(false);
+  };
+
+  const handleGetStarted = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const lightsContainer = document.getElementById("lights");
+    if (lightsContainer) {
+      lightsContainer.dispatchEvent(new MouseEvent("mousedown"));
+    }
+    setTimeout(() => {
+      router.push("/payment");
+    }, 1200);
+  };
+
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black">
+      {/* Hyperspeed Background */}
+      <div className="absolute inset-0 z-0 opacity-100 mix-blend-screen">
+        <Hyperspeed
+          effectOptions={{
+            onSpeedUp: () => {},
+            onSlowDown: () => {},
+            distortion: "mountainDistortion",
+            length: 400,
+            roadWidth: 9,
+            islandWidth: 2,
+            lanesPerRoad: 3,
+            fov: 90,
+            fovSpeedUp: 150,
+            speedUp: 3,
+            carLightsFade: 0.4,
+            totalSideLightSticks: 50,
+            lightPairsPerRoadWay: 50,
+            shoulderLinesWidthPercentage: 0.05,
+            brokenLinesWidthPercentage: 0.1,
+            brokenLinesLengthPercentage: 0.5,
+            lightStickWidth: [0.12, 0.5],
+            lightStickHeight: [1.3, 1.7],
+            movingAwaySpeed: [60, 80],
+            movingCloserSpeed: [-120, -160],
+            carLightsLength: [20, 60],
+            carLightsRadius: [0.05, 0.14],
+            carWidthPercentage: [0.3, 0.5],
+            carShiftX: [-0.2, 0.2],
+            carFloorSeparation: [0.05, 1],
+            colors: {
+              roadColor: 0x080808,
+              islandColor: 0x0a0a0a,
+              background: 0x000000,
+              shoulderLines: 0x131318,
+              brokenLines: 0x131318,
+              leftCars: [0xff0000, 0xff3333, 0xff0000],
+              rightCars: [0xffffff, 0xeeeeee, 0xdddddd],
+              sticks: 0xffffff,
+            },
+          }}
+        />
+      </div>
+
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-black/50 to-black pointer-events-none" />
+
       {/* Navigation */}
-      <nav className="border-b border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-4">
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="absolute top-0 w-full border-b border-white/5 bg-black/10 backdrop-blur-lg z-50"
+      >
+        <div className="container mx-auto px-6 py-3.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">₹</span>
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
+                <span className="text-black font-black text-xs">₹</span>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                CryptoToINR
-              </span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition">
-                Dashboard
-              </Link>
-              <button className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition">
-                Connect Wallet
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <main className="container mx-auto px-6 py-20">
-        <div className="text-center max-w-4xl mx-auto mb-16">
-          <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Pay Anyone in India with Crypto or Forex
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-            Seamlessly convert cryptocurrency or foreign currency to INR and transfer instantly via UPI.
-            Built on Base, powered by AI-optimized routes.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Link href="/payment" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-xl transition transform hover:scale-105">
-              Make a Payment
+              <span className="text-sm font-semibold text-white">PayFlow</span>
             </Link>
-            <Link href="/remittance" className="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-700 rounded-lg font-semibold hover:shadow-xl transition transform hover:scale-105">
-              Send Remittance
-            </Link>
+            <button className="px-5 py-1.5 bg-white/10 border border-white/10 text-white text-xs font-medium rounded-full hover:bg-white hover:text-black transition-all duration-200">
+              Connect Wallet
+            </button>
           </div>
         </div>
+      </motion.nav>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
-          {/* Flow 1 */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">Crypto Payments</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Pay local vendors with cryptocurrency. We convert to stablecoin, offramp to INR, and transfer via UPI.
-            </p>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">BTC, ETH, USDC supported</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">AI-optimized conversion routes</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">Instant UPI transfer</span>
-              </div>
-            </div>
-          </div>
+      {/* Hero Content */}
+      <motion.div
+        className="container relative z-10 px-6 flex flex-col items-center text-center space-y-8"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+      >
+        <motion.h1
+          className="text-4xl md:text-6xl font-bold tracking-tight text-white max-w-4xl leading-tight"
+        >
+          Send money anywhere, instantly.
+        </motion.h1>
 
-          {/* Flow 2 */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">Forex Remittance</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Send money from abroad. Convert foreign currency to stablecoin, then to INR via UPI.
-            </p>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">USD, EUR, GBP, AED supported</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">Best exchange rates via Heyelsa</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">Fast settlement</span>
-              </div>
+        <motion.div className="flex flex-row gap-4 pt-2">
+          <button
+            onClick={handleGetStarted}
+            className="group relative inline-flex h-10 items-center justify-center overflow-hidden rounded-full bg-white px-6 text-sm font-medium text-black transition-all hover:bg-white/90"
+          >
+            <span className="mr-1.5">Get Started</span>
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </button>
+          <Link
+            href="#how-it-works"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white/10"
+          >
+            How It Works
+          </Link>
+        </motion.div>
+      </motion.div>
+
+      {/* How It Works Section */}
+      <div id="how-it-works" className="absolute bottom-8 w-full z-10">
+        <div className="container mx-auto px-6">
+          <div className="max-w-2xl mx-auto bg-black/30 backdrop-blur-xl border border-white/10 rounded-xl p-5">
+            <div className="grid grid-cols-4 gap-6 text-center">
+              {[
+                { emoji: "💱", text: "Choose" },
+                { emoji: "📱", text: "Enter UPI" },
+                { emoji: "🤖", text: "AI Routes" },
+                { emoji: "⚡", text: "<30s" }
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col items-center gap-1.5">
+                  <span className="text-base grayscale brightness-200">{item.emoji}</span>
+                  <p className="text-xs text-zinc-400 font-light">{item.text}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-
-        {/* Tech Stack */}
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">Built With</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-            {[
-              { name: 'Base', desc: 'L2 Network' },
-              { name: 'Heyelsa', desc: 'AI Optimization' },
-              { name: 'ENS', desc: 'Identity' },
-              { name: 'Fileverse', desc: 'IPFS Storage' },
-              { name: 'Self.xyz', desc: 'KYC/Compliance' },
-            ].map((tech) => (
-              <div key={tech.name} className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
-                <div className="font-bold text-lg mb-1 text-gray-900 dark:text-white">{tech.name}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">{tech.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-700 mt-20 py-8">
-        <div className="container mx-auto px-6 text-center text-gray-600 dark:text-gray-400">
-          <p>Built for ETHMumbai 2026 Hackathon</p>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }
