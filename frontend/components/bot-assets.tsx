@@ -128,6 +128,7 @@ export function BotAssets({ botAddress, botLabel }: BotAssetsProps) {
                   ${asset.valueUSD.toLocaleString()} · ${parseFloat(asset.priceUSD).toLocaleString()}/ea
                 </div>
               </div>
+            </div>
           ))
         )}
       </div>
