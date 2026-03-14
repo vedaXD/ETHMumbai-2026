@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronLeft, Zap, Shield, Target, Plus, Minus, Settings2, Activity, Wallet, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLayout from '@/components/shared/AppLayout';
+import { BotMessageSquare, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 
 const MOCK_AGENTS = [
   {
@@ -19,6 +20,28 @@ const MOCK_AGENTS = [
     apy: '+142%',
     winRate: '68%',
     status: 'Farming MEME/WETH',
+    recentTrades: [
+      {
+        id: 'tx-1',
+        type: 'buy',
+        asset: 'MEME',
+        amount: '+1,500,000',
+        price: '$0.00042',
+        time: '2 mins ago',
+        reasoning: 'Detected unusual 450% volume spike on defined timeframe. Sentiment analysis on CT indicates highly coordinated momentum. Executed swift entry before CEX listing rumors price-in.',
+        strategy: 'Momentum Scalp'
+      },
+      {
+        id: 'tx-2',
+        type: 'sell',
+        asset: 'PEPE',
+        amount: '-500,000',
+        price: '$0.0000081',
+        time: '45 mins ago',
+        reasoning: 'On-chain heuristics show top 10 wallets distributing heavily. Risk parameters exceeded acceptable threshold (R>3). Scaling out 100% of position to preserve capital for next rotation.',
+        strategy: 'Risk Mitigation / Distribution Selling'
+      }
+    ]
   },
   {
     id: 'agent-2',
@@ -32,6 +55,18 @@ const MOCK_AGENTS = [
     apy: '+8.4%',
     winRate: '99%',
     status: 'Staking USDC',
+    recentTrades: [
+      {
+        id: 'tx-3',
+        type: 'stake',
+        asset: 'USDC',
+        amount: '40,000',
+        price: '$1.00',
+        time: '5 hrs ago',
+        reasoning: 'Aave V3 borrow rates spiked due to market leverage demand, pushing supply APY to 12.5%. Moved capital from idle base-layer vault to capture premium stable yield. Zero impermanent loss risk.',
+        strategy: 'Base Yield Maximization'
+      }
+    ]
   }
 ];
 
@@ -127,7 +162,40 @@ export default function MonitorAgents() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 relative z-20">
+                {/* AI Reasoning & Trade History Section */}
+                <div className="mb-6 space-y-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
+                    <span className="flex items-center"><BotMessageSquare className="w-3.5 h-3.5 mr-1" /> Agent Logic Feed</span>
+                  </div>
+                  
+                  {agent.recentTrades?.map((trade) => (
+                    <div key={trade.id} className="bg-black/30 border border-white/5 rounded-xl p-4 hover:bg-black/40 transition-colors">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`p-1.5 rounded-lg ${trade.type === 'buy' ? 'bg-emerald-500/20 text-emerald-400' : trade.type === 'sell' ? 'bg-rose-500/20 text-rose-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                            {trade.type === 'buy' ? <TrendingUp className="w-3 h-3" /> : trade.type === 'sell' ? <TrendingDown className="w-3 h-3" /> : <Shield className="w-3 h-3" />}
+                          </div>
+                          <div>
+                            <span className="text-sm font-bold text-white capitalize">{trade.type} {trade.asset}</span>
+                            <span className="text-xs text-zinc-500 ml-2 font-mono">{trade.amount} @ {trade.price}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center text-xs text-zinc-500">
+                          <Clock className="w-3 h-3 mr-1" /> {trade.time}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-zinc-900/80 rounded-lg p-3 border border-white/5 border-l-2 border-l-primary/50 relative">
+                        <div className="text-[10px] font-bold text-primary mb-1 uppercase tracking-wider font-mono">OpenClaw Engine / {trade.strategy}</div>
+                        <p className="text-xs text-zinc-300 leading-relaxed font-mono italic">
+                          "{trade.reasoning}"
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 relative z-20 mt-auto">
                   <button 
                     onClick={() => { setSelectedAgent(agent.id); setActiveModal('fund'); }}
                     className="flex items-center justify-center text-sm py-2 bg-white/5 hover:bg-emerald-500/20 hover:text-emerald-400 border border-white/10 rounded-lg transition-colors text-zinc-300"
