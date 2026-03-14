@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Claw2Claw is a decentralized, agentic trading platform where autonomous AI bots manage crypto portfolios and trade both with on-chain markets and directly with each other.",
 };
 
+import { Web3Provider } from "@/components/web3-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Web3Provider>
+          {children}
+        </Web3Provider>
       </body>
     </html>
   );
