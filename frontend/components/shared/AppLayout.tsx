@@ -7,6 +7,7 @@ import Hyperspeed from "@/components/shared/Hyperspeed";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { UserEnsBadge } from "@/components/shared/user-ens-badge";
+import { useWallet } from "@/lib/WalletContext";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -88,8 +89,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   Hub
                 </Link>
               )}
-              {/* Demoing with vitalik.eth's address so the ENS resolves */}
-              <UserEnsBadge address="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" />
+              <UserEnsBadge address={address} />
             </div>
           </div>
         </div>
@@ -99,10 +99,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <main className="relative z-10 flex-grow flex flex-col">
         {children}
       </main>
-    </div>
-  );
-}
-
     </div>
   );
 }

@@ -6,6 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Bot, Zap, Shield, Target, Plus, Upload, Wallet } from 'lucide-react';
 import AppLayout from '@/components/shared/AppLayout';
 import { BitGoService } from '@/lib/bitgo';
+import { useWallet } from '@/lib/WalletContext';
+import { useEnsName } from 'wagmi';
+import { sepolia } from 'wagmi/chains';
+import { registerAgentSubdomain } from '@/lib/ens/registerSubdomain';
 
 const PERSONALITIES = [
   { id: 'aggressive', title: 'Aggressive Degen', desc: 'High risk, high APY farming. Trades memecoins and fresh LP pairs.', icon: Zap, color: 'text-amber-400', border: 'border-amber-400/50', bg: 'bg-amber-400/10' },
@@ -14,26 +18,51 @@ const PERSONALITIES = [
 ];
 
 export default function CreateAgent() {
+  const { address } = useWallet();
+  const { data: ensName } = useEnsName({
+    address: address as `0x${string}` | undefined,
+    chainId: sepolia.id,
+    query: { enabled: !!address },
+  });
+
   const [name, setName] = useState('');
   const [personality, setPersonality] = useState('');
   const [funding, setFunding] = useState('');
   const [isMinting, setIsMinting] = useState(false);
+  const [mintingStep, setMintingStep] = useState('');
   const [minted, setMinted] = useState(false);
   const [agentWallet, setAgentWallet] = useState<{ walletId: string; address: string } | null>(null);
+  const [agentEns, setAgentEns] = useState<string | null>(null);
   const [walletError, setWalletError] = useState<string | null>(null);
 
   const handleCreate = async () => {
     setIsMinting(true);
     setWalletError(null);
     try {
+      // Step 1: Create BitGo wallet
+      setMintingStep('Provisioning BitGo wallet on Base Sepolia...');
       const agentId = `${name}_${Date.now()}`;
       const wallet = await BitGoService.createAgentWallet(agentId, name, Number(funding) || 100);
       setAgentWallet({ walletId: wallet.walletId, address: wallet.address });
+
+      // Step 2: Register ENS subdomain if user has ENS name
+      if (ensName && address) {
+        try {
+          setMintingStep(`Registering ${name}.${ensName} on ENS...`);
+          const result = await registerAgentSubdomain(ensName, name, address, wallet.address);
+          setAgentEns(result.ensName);
+        } catch (ensErr: any) {
+          // ENS registration is best-effort — don't fail the whole flow
+          console.warn('ENS subdomain registration failed:', ensErr.message);
+        }
+      }
+
       setMinted(true);
     } catch (err: any) {
       setWalletError(err.message || 'Failed to provision agent wallet');
     } finally {
       setIsMinting(false);
+      setMintingStep('');
     }
   };
 
@@ -63,7 +92,9 @@ export default function CreateAgent() {
               >
                 {/* Name Field */}
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold tracking-wide text-zinc-300 uppercase">Agent Name (ENS Subdomain)</label>
+                  <label className="block text-sm font-semibold tracking-wide text-zinc-300 uppercase">
+                    Agent Name {ensName ? `(subdomain of ${ensName})` : '(ENS label)'}
+                  </label>
                   <div className="relative flex items-center">
                     <input
                       type="text"
@@ -72,7 +103,9 @@ export default function CreateAgent() {
                       value={name}
                       onChange={(e) => setName(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                     />
-                    <span className="absolute right-4 text-white/30 font-mono pointer-events-none">.hey-anna.eth</span>
+                    <span className="absolute right-4 text-white/30 font-mono pointer-events-none">
+                      {ensName ? `.${ensName}` : '.your-ens.eth'}
+                    </span>
                   </div>
                 </div>
 
@@ -145,7 +178,7 @@ export default function CreateAgent() {
                     {isMinting ? (
                       <>
                         <Wallet className="animate-bounce w-5 h-5 mr-3" />
-                        Provisioning BitGo Wallet on Base Sepolia...
+                        {mintingStep || 'Initializing...'}
                       </>
                     ) : (
                       <>
@@ -168,7 +201,9 @@ export default function CreateAgent() {
                 </div>
                 <h2 className="text-3xl font-bold text-emerald-400 mb-4">Agent System Online</h2>
                 <p className="text-lg text-emerald-400/60 mb-6 max-w-lg mx-auto font-mono">
-                  {name}.claw2claw.eth provisioned with a dedicated BitGo wallet on Base Sepolia.
+                  {agentEns
+                    ? `${agentEns} provisioned with a dedicated BitGo wallet on Base Sepolia.`
+                    : `${name} provisioned with a dedicated BitGo wallet on Base Sepolia.`}
                 </p>
 
                 {agentWallet && (
@@ -176,6 +211,28 @@ export default function CreateAgent() {
                     <div className="flex items-center gap-2 text-emerald-400 text-sm font-semibold mb-1">
                       <Wallet className="w-4 h-4" /> Agent Wallet
                     </div>
+
+                    {agentEns && (
+                      <div>
+                        <p className="text-xs text-zinc-500 uppercase tracking-wide mb-1">ENS Subdomain</p>
+                        <p className="font-mono text-xs text-blue-400">{agentEns}</p>
+                        <a
+                          href={`https://app.ens.domains/${agentEns}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block text-xs text-blue-400/70 hover:underline mt-0.5"
+                        >
+                          View on ENS ↗
+                        </a>
+                      </div>
+                    )}
+
+                    {!agentEns && (
+                      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-2 text-yellow-400/80 text-xs">
+                        ⚠️ No ENS name on your wallet — connect a wallet with an ENS name to register a subdomain for this agent.
+                      </div>
+                    )}
+
                     <div>
                       <p className="text-xs text-zinc-500 uppercase tracking-wide mb-1">Wallet ID</p>
                       <p className="font-mono text-xs text-white/80 break-all">{agentWallet.walletId}</p>

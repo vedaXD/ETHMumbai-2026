@@ -1,14 +1,29 @@
 'use client';
 
 import { useUserEns } from '@/hooks/useEns';
+import { useWallet } from '@/lib/WalletContext';
 import Image from 'next/image';
 
 interface UserEnsBadgeProps {
-  address: string;
+  address?: string | null;
 }
 
 export function UserEnsBadge({ address }: UserEnsBadgeProps) {
+  const { connect, connecting } = useWallet();
   const { displayName, ensAvatar, isPremiumUser, isLoading } = useUserEns(address);
+
+  // Not connected — show connect button
+  if (!address) {
+    return (
+      <button
+        onClick={connect}
+        disabled={connecting}
+        className="px-5 py-1.5 bg-white/10 border border-white/10 text-white text-xs font-medium rounded-full hover:bg-white hover:text-black transition-all duration-200 disabled:opacity-50"
+      >
+        {connecting ? 'Connecting...' : 'Connect Wallet'}
+      </button>
+    );
+  }
 
   if (isLoading) {
     return (
