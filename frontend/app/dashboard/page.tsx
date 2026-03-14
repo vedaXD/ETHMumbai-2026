@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Bot, Activity, Swords, ChevronRight } from 'lucide-react'
+import { Bot, Activity, Swords, Sparkles, ChevronRight } from 'lucide-react'
 import AppLayout from '@/components/shared/AppLayout'
 
 export default function DashboardHub() {
@@ -33,6 +33,15 @@ export default function DashboardHub() {
       color: "text-rose-400",
       bgHover: "hover:bg-rose-400/10",
       borderHover: "hover:border-rose-400/50"
+    },
+    {
+      title: "Strategy Advisor",
+      description: "Ask the AI: 'I have 5 ETH — what should I do?' Get live Uniswap v3/v4 swap strategies.",
+      icon: Sparkles,
+      href: "/strategy",
+      color: "text-violet-400",
+      bgHover: "hover:bg-violet-400/10",
+      borderHover: "hover:border-violet-400/50"
     }
   ]
 
@@ -47,7 +56,7 @@ export default function DashboardHub() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="z-10 w-full max-w-4xl"
+          className="z-10 w-full max-w-6xl"
         >
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
@@ -58,7 +67,7 @@ export default function DashboardHub() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {options.map((option, idx) => (
               <Link key={idx} href={option.href}>
                 <motion.div
