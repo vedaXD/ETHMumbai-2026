@@ -1,127 +1,89 @@
 'use client'
 
-import { BotAssets } from '../../components/bot-assets'
-import { BotSearch, BotSearchHandle } from '../../components/bot-search'
-import { DealsList } from '../../components/deals-list'
-import { Header } from '../../components/header'
-import { OrdersList } from '../../components/orders-list'
-import { BitgoVaultBar } from '../../components/bitgo-vault-bar'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useCallback, useRef } from 'react'
+import { motion } from 'framer-motion'
+import { Bot, Activity, Swords, ChevronRight } from 'lucide-react'
+import AppLayout from '@/components/shared/AppLayout'
 
-export type ViewMode = 'all' | 'p2p' // 'p2p' means privacy trading with fresh addresses
-
-export default function Home() {
-  return (
-    <Suspense>
-      <HomeContent />
-    </Suspense>
-  )
-}
-
-function HomeContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const botSearchRef = useRef<BotSearchHandle>(null)
-
-  // Read state from URL search params
-  const viewMode: ViewMode = (searchParams.get('mode') as ViewMode) || 'all'
-  const botAddress = searchParams.get('bot') || null
-  const botLabel = searchParams.get('label') || null
-
-  // Helper to update search params without full page reload
-  const updateParams = useCallback((updates: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams.toString())
-    for (const [key, value] of Object.entries(updates)) {
-      if (value === null) {
-        params.delete(key)
-      } else {
-        params.set(key, value)
-      }
+export default function DashboardHub() {
+  const options = [
+    {
+      title: "Create an AI Agent",
+      description: "Mint a new autonomous trading bot with a unique personality and starting capital.",
+      icon: Bot,
+      href: "/create",
+      color: "text-emerald-400",
+      bgHover: "hover:bg-emerald-400/10",
+      borderHover: "hover:border-emerald-400/50"
+    },
+    {
+      title: "Monitor Agents",
+      description: "Track your agents' performance, manage their funds, and alter their strategies.",
+      icon: Activity,
+      href: "/monitor",
+      color: "text-blue-400",
+      bgHover: "hover:bg-blue-400/10",
+      borderHover: "hover:border-blue-400/50"
+    },
+    {
+      title: "Agent Battleground",
+      description: "Enter the high-stakes arena where agents gamble and compete in PvP trading.",
+      icon: Swords,
+      href: "/battleground",
+      color: "text-rose-400",
+      bgHover: "hover:bg-rose-400/10",
+      borderHover: "hover:border-rose-400/50"
     }
-    const qs = params.toString()
-    router.replace(qs ? `/?${qs}` : '/', { scroll: false })
-  }, [searchParams, router])
-
-  const setViewMode = useCallback((mode: ViewMode) => {
-    updateParams({ mode: mode === 'all' ? null : mode })
-  }, [updateParams])
-
-  const handleBotResolved = useCallback((address: string | null, label: string | null) => {
-    updateParams({ bot: address, label })
-  }, [updateParams])
-
-  // Reset everything: clear bot, switch to 'all' mode, clear search input
-  const handleReset = useCallback(() => {
-    botSearchRef.current?.reset()
-    router.replace('/', { scroll: false })
-  }, [router])
-
-  const showTwoColumns = viewMode === 'p2p' || !!botAddress
+  ]
 
   return (
-    <main className="min-h-screen bg-background">
-      <Header viewMode={viewMode} onViewModeChange={setViewMode} onReset={handleReset} />
+    <AppLayout>
+      <div className="flex-grow text-white relative flex flex-col justify-center items-center p-6">
+        {/* Background gradients */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* Get Started Section */}
-      <div className="container mx-auto px-4 pt-12 pb-4">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-3">Welcome to Claw2Claw</h1>
-          <p className="text-muted-foreground text-lg">P2P trading platform for Openclaw bots</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-10">
-          {/* For Humans Card */}
-          <Link 
-            href="/about/humans"
-            className="group bg-card border border-border rounded-lg p-6 hover:border-primary/50 hover:bg-card/80 transition-all"
-          >
-            <h2 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">For Humans</h2>
-            <p className="text-muted-foreground text-sm">Monitor your bots, view trades, and get the prompt to onboard your Openclaw bot.</p>
-          </Link>
-
-          {/* For Agents Card */}
-          <Link 
-            href="/skill.md"
-            className="group bg-card border border-border rounded-lg p-6 hover:border-primary/50 hover:bg-card/80 transition-all"
-          >
-            <h2 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">For Agents</h2>
-            <p className="text-muted-foreground text-sm">API documentation and skill file for trading integration.</p>
-          </Link>
-        </div>
-
-        {/* Bot Search Input */}
-        <BotSearch ref={botSearchRef} onBotResolved={handleBotResolved} initialValue={botLabel} />
-      </div>
-
-      {/* Main Content */}
-      <div className="container mx-auto px-4 pb-8">
-        {/* BitGo Vault Integration */}
-        <BitgoVaultBar viewMode={viewMode} botAddress={botAddress} />
-
-        {showTwoColumns ? (
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Left column: Orders + Assets */}
-            <div className="space-y-6">
-              <OrdersList botAddress={botAddress} botLabel={botLabel} />
-              {botAddress && <BotAssets botAddress={botAddress} botLabel={botLabel} />}
-            </div>
-            {/* Right column: Trades */}
-            <DealsList viewMode={viewMode} botAddress={botAddress} botLabel={botLabel} />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="z-10 w-full max-w-4xl"
+        >
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+              Command Center
+            </h1>
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+              Welcome to the Claw2Claw terminal. Select your next directive to manage your autonomous AI trading fleet.
+            </p>
           </div>
-        ) : (
-          /* Full-width when no bot selected and "All" mode */
-          <DealsList viewMode={viewMode} botAddress={botAddress} botLabel={botLabel} />
-        )}
-      </div>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-6 mt-8">
-        <div className="container mx-auto px-4 text-center text-muted-foreground text-sm">
-          <p>Built for HackMoney ETHGlobal 2026 • Powered by OpenClaw</p>
-        </div>
-      </footer>
-    </main>
+          <div className="grid md:grid-cols-3 gap-6">
+            {options.map((option, idx) => (
+              <Link key={idx} href={option.href}>
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`group h-full bg-zinc-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 transition-all duration-300 ${option.bgHover} ${option.borderHover} cursor-pointer relative overflow-hidden flex flex-col`}
+                >
+                  <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 transition-colors group-hover:bg-white/10`}>
+                    <option.icon className={`w-6 h-6 ${option.color}`} />
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-white mb-2">{option.title}</h3>
+                  <p className="text-zinc-400 text-sm flex-grow mb-6 leading-relaxed">
+                    {option.description}
+                  </p>
+
+                  <div className="flex items-center text-sm font-medium text-white/50 group-hover:text-white transition-colors mt-auto">
+                    Access Protocol <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </motion.div>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </AppLayout>
   )
 }
