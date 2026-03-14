@@ -84,3 +84,9 @@ export interface IPFSMetadata {
   uploadedAt: Date;
   metadata?: Record<string, any>;
 }
+
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
