@@ -195,18 +195,18 @@ export default function Home() {
               key="widget"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="w-full max-w-md bg-zinc-900/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 text-left shadow-2xl overflow-visible relative z-20"
+              className="w-full max-w-md bg-[#0a0a0a] border-2 border-[#1a1a1a] rounded-2xl p-6 text-left shadow-2xl overflow-visible relative z-20"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-medium text-white">Transfer Details</h3>
-                <button onClick={() => setShowWidget(false)} className="text-zinc-400 hover:text-white transition-colors text-sm">
+                <h3 className="text-xl font-bold text-white">Transfer Details</h3>
+                <button onClick={() => setShowWidget(false)} className="text-zinc-400 hover:text-white transition-colors text-sm font-semibold">
                   Cancel
                 </button>
               </div>
 
               {/* Send Amount */}
-              <div className="bg-black/50 border border-white/5 rounded-2xl p-4 mb-2 hover:border-white/10 transition-colors relative z-40">
-                <label className="block text-xs font-medium text-zinc-400 mb-2">You Send</label>
+              <div className="bg-[#050505] border-2 border-[#1a1a1a] rounded-xl p-4 mb-3 hover:border-zinc-700 transition-colors relative z-40">
+                <label className="block text-sm font-semibold text-zinc-400 mb-2">You Send</label>
                 <div className="flex items-center justify-between relative">
                   <input
                     type="number"
@@ -257,8 +257,8 @@ export default function Home() {
               </div>
 
               {/* Receive Amount */}
-              <div className="bg-black/50 border border-white/5 rounded-2xl p-4 mb-6 hover:border-white/10 transition-colors relative z-30">
-                <label className="block text-xs font-medium text-zinc-400 mb-2">They Receive (Estimated)</label>
+              <div className="bg-[#050505] border-2 border-[#1a1a1a] rounded-xl p-4 mb-6 hover:border-zinc-700 transition-colors relative z-30">
+                <label className="block text-sm font-semibold text-zinc-400 mb-2">They Receive (Estimated)</label>
                 <div className="flex items-center justify-between relative">
                   <input
                     type="text"
@@ -308,12 +308,12 @@ export default function Home() {
               </div>
 
               {/* Fee Breakdown */}
-              <div className="bg-white/5 rounded-2xl p-4 mb-6 text-sm">
+              <div className="bg-[#0a0a0a] border-2 border-[#1a1a1a] rounded-xl p-4 mb-6 text-sm">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-zinc-400 flex items-center gap-1.5">
+                  <span className="text-zinc-400 font-semibold flex items-center gap-1.5">
                     <Activity className="w-3.5 h-3.5" /> Exchange Rate
                   </span>
-                  <span className="text-white font-medium">1 {currency.code} = 0.98 {receiveCurrency.code}</span>
+                  <span className="text-white font-semibold">1 {currency.code} = 0.98 {receiveCurrency.code}</span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-zinc-400">Platform Fee</span>
@@ -331,7 +331,7 @@ export default function Home() {
 
               <button
                 onClick={handleContinue}
-                className="w-full h-12 bg-white text-black rounded-xl font-semibold hover:bg-white/90 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] active:scale-[0.98]"
+                className="w-full h-12 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all pulse-red shadow-[0_0_20px_rgba(220,38,38,0.2)] active:scale-[0.98]"
               >
                 Continue Transaction
               </button>

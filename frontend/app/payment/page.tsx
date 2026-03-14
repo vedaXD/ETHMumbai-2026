@@ -15,7 +15,29 @@ export default function PaymentPage() {
     { symbol: "USDC", name: "USD Coin", balance: "1,245.50" },
     { symbol: "USDT", name: "Tether", balance: "850.00" },
     { symbol: "ETH", name: "Ethereum", balance: "0.5234" },
+    { symbol: "BTC", name: "Bitcoin", balance: "0.041" },
+    { symbol: "EUR", name: "Euro", balance: "5,000.00" },
+    { symbol: "USD", name: "US Dollar", balance: "2,500.00" },
   ];
+
+  const conversionRates: Record<string, number> = {
+    USDC: 83.5,
+    USDT: 83.4,
+    ETH: 305000,
+    BTC: 8250000,
+    EUR: 90.5,
+    USD: 83.5,
+  };
+
+  const getInrValue = (amt: string, curr: string) => {
+    if (!amt || isNaN(parseFloat(amt))) return 0;
+    const rate = conversionRates[curr] || 83.5;
+    return parseFloat(amt) * rate;
+  };
+
+  const inrValue = getInrValue(amount, selectedCurrency);
+  const conversionFee = amount ? parseFloat(amount) * 0.005 : 0;
+  const youReceiveInr = inrValue * 0.995;
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
@@ -117,7 +139,7 @@ export default function PaymentPage() {
                   placeholder="0.00"
                   className="w-full p-4 text-2xl font-bold bg-[#0a0a0a] border-2 border-[#1a1a1a] rounded-xl text-white focus:border-red-600 focus:outline-none transition-colors"
                 />
-                <p className="mt-2 text-zinc-400">≈ ₹{amount ? (parseFloat(amount) * 83.5).toLocaleString() : "0.00"}</p>
+                <p className="mt-2 text-zinc-400">≈ ₹{inrValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
               </div>
 
               <div>
@@ -136,11 +158,15 @@ export default function PaymentPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-zinc-400">
                     <span>Conversion Fee (0.5%):</span>
-                    <span className="font-semibold">{amount ? (parseFloat(amount) * 0.005).toFixed(4) : "0.00"} {selectedCurrency}</span>
+                    <span className="font-semibold">{conversionFee.toLocaleString(undefined, { maximumFractionDigits: 6 })} {selectedCurrency}</span>
                   </div>
-                  <div className="flex justify-between border-t border-[#1a1a1a] pt-2">
-                    <span className="font-bold text-white">You'll receive:</span>
-                    <span className="font-bold text-red-500">₹{amount ? (parseFloat(amount) * 83.5 * 0.995).toLocaleString() : "0.00"}</span>
+                  <div className="flex justify-between text-zinc-400 pt-1">
+                    <span>Exchange Rate:</span>
+                    <span className="font-semibold">1 {selectedCurrency} = ₹{conversionRates[selectedCurrency] || 83.5}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-[#1a1a1a] mt-2 pt-2">
+                    <span className="font-bold text-white">They'll receive:</span>
+                    <span className="font-bold text-red-500">₹{youReceiveInr.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>
@@ -154,7 +180,7 @@ export default function PaymentPage() {
                 </button>
                 <button
                   onClick={() => setStep(3)}
-                  className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 transition-all"
+                  className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 transition-all pulse-red"
                 >
                   Review
                 </button>
@@ -175,12 +201,12 @@ export default function PaymentPage() {
                   </div>
                   <div className="border-t border-[#1a1a1a] pt-4">
                     <div className="text-sm text-zinc-500 mb-1">To</div>
-                    <div className="text-xl font-bold text-white">{upiId}</div>
+                    <div className="text-xl font-bold text-white">{upiId || "Not specified"}</div>
                   </div>
                   <div className="border-t border-[#1a1a1a] pt-4">
                     <div className="text-sm text-zinc-500 mb-1">They Receive</div>
                     <div className="text-3xl font-black text-red-500">
-                      ₹{amount ? (parseFloat(amount) * 83.5 * 0.995).toLocaleString() : "0.00"}
+                      ₹{youReceiveInr.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </div>
                   </div>
                 </div>
