@@ -84,7 +84,7 @@ export function UserEnsBadge({ address }: UserEnsBadgeProps) {
                 </div>
                 <p className="font-mono text-xs text-white/70 break-all">{userVault.address}</p>
                 <a
-                  href={`https://sepolia.basescan.org/address/${userVault.address}`}
+                  href={`https://base-sepolia.blockscout.com/address/${userVault.address}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 text-xs text-blue-400 hover:underline"

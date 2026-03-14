@@ -86,7 +86,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
               chainName: 'Base Sepolia',
               nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
               rpcUrls: ['https://sepolia.base.org'],
-              blockExplorerUrls: ['https://sepolia.basescan.org'],
+              blockExplorerUrls: ['https://base-sepolia.blockscout.com'],
             }],
           });
         }

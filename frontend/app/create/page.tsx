@@ -242,7 +242,7 @@ export default function CreateAgent() {
                       <p className="font-mono text-xs text-emerald-400 break-all">{agentWallet.address}</p>
                     </div>
                     <a
-                      href={`https://sepolia.basescan.org/address/${agentWallet.address}`}
+                      href={`https://base-sepolia.blockscout.com/address/${agentWallet.address}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-block text-xs text-blue-400 hover:underline mt-1"
