@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Bot, LogOut } from "lucide-react";
+import { Bot } from "lucide-react";
 import Hyperspeed from "@/components/shared/Hyperspeed";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
@@ -14,6 +14,11 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
+  const { address, connecting, connect, disconnect } = useWallet();
+
+  const shortAddress = address
+    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+    : null;
 
   return (
     <div className="relative min-h-screen flex flex-col bg-black overflow-hidden">
@@ -76,7 +81,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </div>
               <span className="text-sm font-semibold text-white">Hey Anna</span>
             </Link>
-            
+
             <div className="flex items-center space-x-4">
               {pathname !== '/dashboard' && (
                 <Link href="/dashboard" className="text-white/50 hover:text-white text-xs font-medium transition-colors">
@@ -94,6 +99,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <main className="relative z-10 flex-grow flex flex-col">
         {children}
       </main>
+    </div>
+  );
+}
+
     </div>
   );
 }
