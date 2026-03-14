@@ -48,7 +48,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-4xl font-black mb-2 text-white"
         >
-          Claw2Claw
+          Hey Anna
         </motion.h1>
 
         <motion.p

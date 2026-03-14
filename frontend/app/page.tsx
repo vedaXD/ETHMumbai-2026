@@ -111,7 +111,7 @@ export default function Home() {
               <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
                 <Bot className="w-4 h-4 text-black" />
               </div>
-              <span className="text-sm font-semibold text-white">Claw2Claw</span>
+              <span className="text-sm font-semibold text-white">Hey Anna</span>
             </Link>
             <button
                 onClick={address ? undefined : connect}

@@ -10,10 +10,11 @@ export interface BotSearchHandle {
 interface BotSearchProps {
   onBotResolved: (botAddress: string | null, label: string | null) => void
   initialValue?: string | null
+  baseEnsDomain?: string // e.g. "vitalik.eth" (so bot becomes "botname.vitalik.eth")
 }
 
 export const BotSearch = forwardRef<BotSearchHandle, BotSearchProps>(
-  function BotSearch({ onBotResolved, initialValue }, ref) {
+  function BotSearch({ onBotResolved, initialValue, baseEnsDomain = 'claw2claw.eth' }, ref) {
   const [input, setInput] = useState(initialValue || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -68,8 +69,8 @@ export const BotSearch = forwardRef<BotSearchHandle, BotSearchProps>(
           setError(`Could not resolve "${trimmed}"`)
         }
       } else {
-        // Assume it's a subdomain shortcut, append .claw2claw.eth
-        const fullName = `${trimmed}.claw2claw.eth`
+        // Assume it's a subdomain shortcut, append the base domain
+        const fullName = `${trimmed}.${baseEnsDomain}`
         const res = await api.post('/api/bots/ens/resolve', { ensName: fullName })
         if (res.data.success && res.data.address) {
           setResolvedLabel(fullName)

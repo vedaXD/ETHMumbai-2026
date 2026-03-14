@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     // Mock response for the hackathon MVP to avoid viem/wagmi dependencies
     console.log(`[ENS Resolution Mock] Resolving ${ensName}`)
     
-    // Simulate a successful resolution for any .claw2claw.eth subdomain
+    // Simulate a successful resolution for any .hey-anna.eth subdomain
     // In a real implementation, this would use the ENS Public Resolver on Sepolia
     return NextResponse.json({
       success: true,

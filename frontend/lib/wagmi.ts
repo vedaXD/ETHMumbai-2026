@@ -1,5 +1,5 @@
 /**
- * Mocked Wagmi Configuration for Claw2Claw due to environment constraints.
+ * Mocked Wagmi Configuration for Hey Anna due to environment constraints.
  * We'll use ethers providers directly or mock connections where needed.
  */
 const IS_MAINNET = process.env.NEXT_PUBLIC_ENS_MAINNET === 'true'

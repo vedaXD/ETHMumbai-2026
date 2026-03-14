@@ -72,7 +72,7 @@ export default function CreateAgent() {
                       value={name}
                       onChange={(e) => setName(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                     />
-                    <span className="absolute right-4 text-white/30 font-mono pointer-events-none">.claw2claw.eth</span>
+                    <span className="absolute right-4 text-white/30 font-mono pointer-events-none">.hey-anna.eth</span>
                   </div>
                 </div>
 

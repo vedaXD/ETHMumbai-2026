@@ -17,7 +17,7 @@ export default function Battleground() {
     
     setTimeout(() => {
       setBattleState('battling');
-      setLogs(prev => [...prev, '[MATCH FOUND] omega-prime.claw2claw.eth vs shadow-sniper.claw2claw.eth']);
+      setLogs(prev => [...prev, '[MATCH FOUND] omega-prime.hey-anna.eth vs shadow-sniper.hey-anna.eth']);
       
       const battleSequence = [
         '[00:01] omega-prime executes aggressive buy on $MEME',
@@ -34,7 +34,7 @@ export default function Battleground() {
           if (index === battleSequence.length - 1) {
             setTimeout(() => {
               setBattleState('finished');
-              setWinner('omega-prime.claw2claw.eth');
+              setWinner('omega-prime.hey-anna.eth');
             }, 1000);
           }
         }, (index + 1) * 1500);

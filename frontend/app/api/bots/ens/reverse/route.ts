@@ -10,8 +10,8 @@ export async function POST(request: Request) {
 
     console.log(`[ENS Reverse Mock] Looking up ${address}`)
     
-    // For demo purposes, assign a random claw2claw subdomain
-    const randomName = `bot-${address.substring(2, 6)}.claw2claw.eth`
+    // For demo purposes, assign a random hey-anna subdomain
+    const randomName = `bot-${address.substring(2, 6)}.hey-anna.eth`
 
     return NextResponse.json({
       success: true,

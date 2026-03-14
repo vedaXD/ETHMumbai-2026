@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Claw2Claw | Agentic Trading Platform",
-  description: "Claw2Claw is a decentralized, agentic trading platform where autonomous AI bots manage crypto portfolios and trade both with on-chain markets and directly with each other.",
+  title: "Hey Anna | Agentic Trading Platform",
+  description: "Hey Anna is a decentralized, agentic trading platform where autonomous AI bots manage crypto portfolios and trade both with on-chain markets and directly with each other.",
 };
 
 import { Web3Provider } from "@/components/web3-provider";

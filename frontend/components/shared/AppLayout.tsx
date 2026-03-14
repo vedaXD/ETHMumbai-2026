@@ -6,6 +6,7 @@ import { Bot, LogOut } from "lucide-react";
 import Hyperspeed from "@/components/shared/Hyperspeed";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { UserEnsBadge } from "@/components/shared/user-ens-badge";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -73,7 +74,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
                 <Bot className="w-4 h-4 text-black" />
               </div>
-              <span className="text-sm font-semibold text-white">Claw2Claw</span>
+              <span className="text-sm font-semibold text-white">Hey Anna</span>
             </Link>
             
             <div className="flex items-center space-x-4">
@@ -82,9 +83,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   Hub
                 </Link>
               )}
-              <button className="px-5 py-1.5 bg-white/10 border border-white/10 text-white text-xs font-medium rounded-full hover:bg-white hover:text-black transition-all duration-200">
-                0xVault...3A2F
-              </button>
+              {/* Demoing with vitalik.eth's address so the ENS resolves */}
+              <UserEnsBadge address="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" />
             </div>
           </div>
         </div>
