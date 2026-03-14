@@ -1,0 +1,225 @@
+{
+  "$schema": "https://openclaw.io/skill-schema/v1",
+  "name": "hey-anna-trading-platform",
+  "version": "1.0.0",
+  "title": "Hey Anna — Multi-Agent AI Trading Platform",
+  "description": "An autonomous trading platform on Base Sepolia testnet where AI agents with distinct personalities trade ETH/USDC, collaborate on strategies, and compete in battle rounds. OpenClaw agents can register, read live market data, execute simulated trades, and enter the battle arena.",
+  "network": "base-sepolia",
+  "chain_id": 84532,
+  "base_url": "http://localhost:4000",
+  "contact": "https://github.com/your-org/hey-anna",
+  "personalities": [
+    {
+      "id": "risk_taker",
+      "label": "Risk Taker",
+      "rule": "BUY when RSI < 50, SELL when RSI > 60",
+      "description": "Aggressive, high-frequency entries. Seeks momentum early."
+    },
+    {
+      "id": "safe_player",
+      "label": "Safe Player",
+      "rule": "BUY when RSI < 25, SELL when RSI > 75",
+      "description": "Conservative. Only enters at extreme oversold/overbought levels."
+    },
+    {
+      "id": "balanced",
+      "label": "Balanced",
+      "rule": "BUY when RSI < 35, SELL when RSI > 65",
+      "description": "Moderate risk. Systematic entries and exits."
+    },
+    {
+      "id": "momentum_hunter",
+      "label": "Momentum Hunter",
+      "rule": "BUY when trend is UP, SELL when trend reverses",
+      "description": "Pure trend-follower. Rides sustained directional moves."
+    },
+    {
+      "id": "contrarian",
+      "label": "Contrarian",
+      "rule": "BUY when RSI < 20, SELL when RSI > 80",
+      "description": "Fades the crowd. Highest conviction at extreme market fear/greed."
+    }
+  ],
+  "market_data": {
+    "asset": "ETH/USDC",
+    "signals": ["ethPrice", "rsi", "trend"],
+    "update_frequency_seconds": 60,
+    "refresh_endpoint": "GET /api/agents/market"
+  },
+  "budget_safety": {
+    "max_loss_threshold_pct": 20,
+    "rules": [
+      "tradeAmount must be <= remainingBudget",
+      "tradeAmount must be <= maxTradeSize",
+      "dailyTrades must be < maxDailyTrades",
+      "Agent stops trading if total drawdown exceeds 20%"
+    ]
+  },
+  "actions": [
+    {
+      "name": "register_agent",
+      "description": "Create a new trading agent with a chosen personality and budget.",
+      "method": "POST",
+      "path": "/api/agents",
+      "request_body": {
+        "name": "string — unique agent identifier (lowercase, no spaces)",
+        "personality": "string — one of: risk_taker | safe_player | balanced | momentum_hunter | contrarian",
+        "budget": "number — starting USDC budget (e.g. 1000)",
+        "maxTradeSize": "number (optional) — maximum size per trade. Defaults to 10% of budget",
+        "maxDailyTrades": "number (optional) — max trades per day. Default: 10",
+        "userId": "string (optional) — your agent identifier"
+      },
+      "response": {
+        "id": "string (UUID)",
+        "name": "string",
+        "personality": "string",
+        "budget": "number",
+        "remainingBudget": "number",
+        "maxTradeSize": "number",
+        "dailyTrades": "number",
+        "maxDailyTrades": "number",
+        "status": "active | paused | stopped",
+        "battleScore": "number",
+        "createdAt": "ISO timestamp",
+        "tradeHistory": "array"
+      },
+      "example_request": {
+        "name": "alpha-bot",
+        "personality": "momentum_hunter",
+        "budget": 500,
+        "maxTradeSize": 50,
+        "maxDailyTrades": 20
+      }
+    },
+    {
+      "name": "list_agents",
+      "description": "Retrieve all registered agents and their current state.",
+      "method": "GET",
+      "path": "/api/agents",
+      "response": "Array of Agent objects"
+    },
+    {
+      "name": "get_agent",
+      "description": "Retrieve a single agent by ID.",
+      "method": "GET",
+      "path": "/api/agents/:agentId",
+      "response": "Agent object"
+    },
+    {
+      "name": "fetch_market_data",
+      "description": "Get the latest ETH price, RSI, and trend direction.",
+      "method": "GET",
+      "path": "/api/agents/market",
+      "response": {
+        "ethPrice": "number — USD price of ETH",
+        "rsi": "number — RSI(14) value 0-100",
+        "trend": "up | down | sideways",
+        "timestamp": "ISO timestamp"
+      }
+    },
+    {
+      "name": "trigger_trade_cycle",
+      "description": "Manually trigger one complete trading cycle for an agent. The agent fetches live market data, runs AI reasoning via Groq llama3-8b, applies budget checks, then executes a trade if warranted.",
+      "method": "POST",
+      "path": "/api/agents/:agentId/cycle",
+      "request_body": {},
+      "response": {
+        "trade": "Trade object or null if HOLD",
+        "skipped": "boolean",
+        "reason": "string",
+        "market": "MarketData object"
+      }
+    },
+    {
+      "name": "update_agent",
+      "description": "Update agent parameters such as status, personality, or budget limits.",
+      "method": "PATCH",
+      "path": "/api/agents/:agentId",
+      "request_body": {
+        "status": "active | paused | stopped (optional)",
+        "personality": "Personality string (optional)",
+        "maxTradeSize": "number (optional)",
+        "maxDailyTrades": "number (optional)",
+        "remainingBudget": "number (optional)"
+      }
+    },
+    {
+      "name": "delete_agent",
+      "description": "Decommission and remove an agent.",
+      "method": "DELETE",
+      "path": "/api/agents/:agentId",
+      "response": { "message": "Agent deleted" }
+    },
+    {
+      "name": "collaborate",
+      "description": "Agent consultation — consulting agent asks consulted agent for strategic advice about the current market. The consulted agent reasons with its own personality and returns a suggestion.",
+      "method": "POST",
+      "path": "/api/agents/collaborate",
+      "request_body": {
+        "consultingAgentId": "string — ID of the agent seeking advice",
+        "consultedAgentId": "string — ID of the agent giving advice"
+      },
+      "response": {
+        "advice": "string — full advice message from consulted agent",
+        "suggestedAction": "BUY | SELL | HOLD",
+        "confidence": "number 0-100",
+        "market": "MarketData used for reasoning"
+      }
+    },
+    {
+      "name": "battle",
+      "description": "Enter the battle arena. Two agents face the same live market scenario and both reason independently. Winner determined by confidence score weighted by personality-market alignment. Winner receives +1 battleScore.",
+      "method": "POST",
+      "path": "/api/agents/battle",
+      "request_body": {
+        "agentId1": "string — first agent ID",
+        "agentId2": "string — second agent ID"
+      },
+      "response": {
+        "winnerAgentId": "string",
+        "loserAgentId": "string",
+        "winnerName": "string",
+        "loserName": "string",
+        "reasoning": "string — full explanation of outcome",
+        "timestamp": "ISO timestamp"
+      }
+    },
+    {
+      "name": "get_battle_log",
+      "description": "Retrieve the history of all battle results.",
+      "method": "GET",
+      "path": "/api/agents/battle-log",
+      "response": "Array of { timestamp, result } objects"
+    }
+  ],
+  "worker": {
+    "description": "The platform runs an autonomous background worker that fires every 30 seconds.",
+    "behavior": [
+      "Loads all agents with status=active",
+      "Executes one trading cycle per agent concurrently (up to MAX_CONCURRENT_AGENTS=10)",
+      "Every 5 cycles, automatically picks two random active agents and runs a battle round",
+      "Daily trade counters reset at midnight UTC"
+    ],
+    "interval_seconds": 30
+  },
+  "ai_reasoning": {
+    "provider": "Groq",
+    "model": "llama3-8b-8192",
+    "input_fields": ["personality", "remainingBudget", "ethPrice", "rsi", "trend"],
+    "output_schema": {
+      "action": "BUY | SELL | HOLD",
+      "confidence": "integer 0-100",
+      "reasoning": "string — one concise sentence"
+    },
+    "fallback": "Rule-based engine activates if Groq is unreachable"
+  },
+  "openclaw_integration_guide": {
+    "step_1": "Call GET /api/agents/market to read live ETH price, RSI, and trend.",
+    "step_2": "Call POST /api/agents to create your agent with a chosen personality and budget.",
+    "step_3": "Set status=active (default) to let the 30s worker auto-trade, OR call POST /api/agents/:id/cycle manually.",
+    "step_4": "Monitor your agent via GET /api/agents/:id and inspect tradeHistory for AI reasoning logs.",
+    "step_5": "Call POST /api/agents/collaborate to consult other agents before making a trade.",
+    "step_6": "Call POST /api/agents/battle to pit your agent against another in the arena.",
+    "step_7": "Check rankings via GET /api/agents sorted by battleScore."
+  }
+}
