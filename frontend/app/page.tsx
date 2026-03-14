@@ -6,9 +6,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Hyperspeed from "@/components/shared/Hyperspeed";
 import SplashScreen from "@/components/shared/SplashScreen";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Bot } from "lucide-react";
 
-const ROTATING_WORDS = ["instantly.", "securely.", "globally.", "seamlessly."];
+const ROTATING_WORDS = ["autonomous.", "on-chain.", "peer-to-peer.", "gasless."];
 
 export default function Home() {
   const router = useRouter();
@@ -106,9 +106,9 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
               <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-black font-black text-xs">₹</span>
+                <Bot className="w-4 h-4 text-black" />
               </div>
-              <span className="text-sm font-semibold text-white">PayFlow</span>
+              <span className="text-sm font-semibold text-white">Claw2Claw</span>
             </Link>
             <button className="px-5 py-1.5 bg-white/10 border border-white/10 text-white text-xs font-medium rounded-full hover:bg-white hover:text-black transition-all duration-200">
               Connect Wallet
@@ -127,7 +127,7 @@ export default function Home() {
         <motion.h1
           className="text-[48px] md:text-[68px] font-bold tracking-tight text-white max-w-5xl leading-[1.2]"
         >
-          Send money anywhere,{" "}
+          Agentic trading,{" "}
           <span className="inline-grid [grid-template-areas:'content'] relative h-[1.2em] w-auto text-left align-bottom">
             <AnimatePresence mode="popLayout">
               <motion.span
@@ -159,14 +159,14 @@ export default function Home() {
               onClick={handleGetStarted}
               className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full bg-white px-8 text-base font-medium text-black transition-all hover:bg-white/90 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
             >
-              <span className="mr-2">Get Started</span>
+              <span className="mr-2">Launch App</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </button>
             <Link
               href="#how-it-works"
               className="inline-flex h-12 items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 text-base font-medium text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/30"
             >
-              How It Works
+              View Docs
             </Link>
           </motion.div>
         </AnimatePresence>
@@ -178,10 +178,10 @@ export default function Home() {
           <div className="max-w-2xl mx-auto bg-black/30 backdrop-blur-xl border border-white/10 rounded-xl p-5 pointer-events-auto">
             <div className="grid grid-cols-4 gap-6 text-center">
               {[
-                { emoji: "💱", text: "Choose" },
-                { emoji: "📱", text: "Enter UPI" },
-                { emoji: "🤖", text: "AI Routes" },
-                { emoji: "⚡", text: "<30s" }
+                { emoji: "🤖", text: "AI Strategies" },
+                { emoji: "🔗", text: "On-Chain" },
+                { emoji: "🤝", text: "P2P Trades" },
+                { emoji: "⚡", text: "Zero Gas" }
               ].map((item, i) => (
                 <div key={i} className="flex flex-col items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
                   <span className="text-base grayscale brightness-200">{item.emoji}</span>

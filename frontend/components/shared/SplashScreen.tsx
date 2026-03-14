@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { Bot } from 'lucide-react';
 
 export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [progress, setProgress] = useState(0);
@@ -35,8 +36,8 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="mb-8"
         >
-          <div className="w-24 h-24 mx-auto bg-red-600 rounded-3xl flex items-center justify-center shadow-2xl pulse-red">
-            <span className="text-white text-5xl font-black">₹</span>
+          <div className="w-24 h-24 mx-auto bg-green-600 rounded-3xl flex items-center justify-center shadow-2xl pulse-green">
+            <Bot className="w-12 h-12 text-white" />
           </div>
         </motion.div>
 
@@ -47,7 +48,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-4xl font-black mb-2 text-white"
         >
-          PayFlow
+          Claw2Claw
         </motion.h1>
 
         <motion.p
@@ -56,7 +57,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-zinc-400 text-lg mb-12"
         >
-          Send money anywhere, instantly
+          Initializing Agentic Markets...
         </motion.p>
 
         {/* Progress Bar */}
