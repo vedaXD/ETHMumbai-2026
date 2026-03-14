@@ -9,7 +9,8 @@ import { WalletProvider } from '@/lib/WalletContext'
 const config = createConfig({
   chains: [sepolia],
   transports: {
-    [sepolia.id]: http(),
+    // Same RPC used in NoCap-Lottery where ENS works
+    [sepolia.id]: http('https://ethereum-sepolia-rpc.publicnode.com'),
   },
 })
 

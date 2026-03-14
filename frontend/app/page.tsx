@@ -9,12 +9,13 @@ import SplashScreen from "@/components/shared/SplashScreen";
 import { ArrowRight, Bot } from "lucide-react";
 
 import { useWallet } from "@/lib/WalletContext";
+import { UserEnsBadge } from "@/components/shared/user-ens-badge";
 
 const ROTATING_WORDS = ["autonomous.", "on-chain.", "peer-to-peer.", "gasless."];
 
 export default function Home() {
   const router = useRouter();
-  const { address, connecting, connect } = useWallet();
+  const { address } = useWallet();
   const [showSplash, setShowSplash] = useState(true);
   const [wordIndex, setWordIndex] = useState(0);
 
@@ -113,13 +114,7 @@ export default function Home() {
               </div>
               <span className="text-sm font-semibold text-white">Hey Anna</span>
             </Link>
-            <button
-                onClick={address ? undefined : connect}
-                disabled={connecting}
-                className="px-5 py-1.5 bg-white/10 border border-white/10 text-white text-xs font-medium rounded-full hover:bg-white hover:text-black transition-all duration-200 disabled:opacity-50"
-              >
-                {connecting ? 'Connecting...' : address ? `${address.slice(0,6)}...${address.slice(-4)}` : 'Connect Wallet'}
-              </button>
+                <UserEnsBadge address={address} />
           </div>
         </div>
       </motion.nav>

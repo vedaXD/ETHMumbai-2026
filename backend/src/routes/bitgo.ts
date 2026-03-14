@@ -1,16 +1,34 @@
 import { Router, Request, Response } from 'express';
 import { BitGoServerService } from '../services/bitgo';
+import { db } from '../services/db';
 
 const router = Router();
 
-// POST /api/bitgo/wallets
+// POST /api/bitgo/wallets — create agent wallet + persist to DB
 router.post('/wallets', async (req: Request, res: Response) => {
   try {
-    const { agentId, agentName, maxSpendLimit } = req.body;
+    const { agentId, agentName, maxSpendLimit, ownerAddress, personality, ensName } = req.body;
     if (!agentId || !agentName) {
       return res.status(400).json({ error: 'agentId and agentName are required' });
     }
+
     const wallet = await BitGoServerService.createAgentWallet(agentId, agentName, maxSpendLimit || 100);
+
+    // Persist agent with owner link
+    if (ownerAddress) {
+      db.saveAgent({
+        agentId,
+        name: agentName,
+        personality: personality || 'Unknown',
+        walletId: wallet.walletId,
+        walletAddress: wallet.address,
+        ensName: ensName || null,
+        ownerAddress,
+        coin: wallet.coin,
+        createdAt: new Date().toISOString(),
+      });
+    }
+
     return res.json({ success: true, wallet });
   } catch (error: any) {
     console.error('Wallet creation error:', error);

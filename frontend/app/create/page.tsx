@@ -48,20 +48,10 @@ export default function CreateAgent() {
     setError(null);
 
     try {
-      // Step 1: Register agent with trading engine
-      setMintingStep('Registering agent with trading engine...');
-      await AgentService.create({
-        name,
-        personality: personality as Personality,
-        budget: Number(funding),
-        maxTradeSize: maxTradeSize ? Number(maxTradeSize) : undefined,
-        maxDailyTrades: maxDailyTrades ? Number(maxDailyTrades) : 10,
-      });
-
-      // Step 2: Provision BitGo wallet
+      // Step 1: Create BitGo wallet (passes ownerAddress + personality for DB storage)
       setMintingStep('Provisioning BitGo wallet on Base Sepolia...');
       const agentId = `${name}_${Date.now()}`;
-      const wallet = await BitGoService.createAgentWallet(agentId, name, Number(funding));
+      const wallet = await BitGoService.createAgentWallet(agentId, name, Number(funding) || 100, address || undefined, personality);
       setAgentWallet({ walletId: wallet.walletId, address: wallet.address });
 
       // Step 3: Register ENS subdomain (best-effort)
@@ -70,8 +60,15 @@ export default function CreateAgent() {
           setMintingStep(`Registering ${name}.${ensName} on ENS...`);
           const result = await registerAgentSubdomain(ensName, name, address, wallet.address);
           setAgentEns(result.ensName);
-        } catch {
-          // ENS registration is optional
+          // Update ENS name in backend DB
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+          await fetch(`${backendUrl}/api/users/${address}/agents/${agentId}/ens`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ensName: result.ensName }),
+          }).catch(() => {}); // non-fatal
+        } catch (ensErr: any) {
+          console.warn('ENS subdomain registration failed:', ensErr.message);
         }
       }
 
@@ -299,7 +296,7 @@ export default function CreateAgent() {
                       </p>
                     </div>
                     <a
-                      href={`https://sepolia.basescan.org/address/${agentWallet.address}`}
+                      href={`https://base-sepolia.blockscout.com/address/${agentWallet.address}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-block text-xs text-blue-400 hover:underline mt-1"
