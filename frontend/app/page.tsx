@@ -8,7 +8,7 @@ import Hyperspeed from "@/components/shared/Hyperspeed";
 import SplashScreen from "@/components/shared/SplashScreen";
 import { ArrowRight, Bot } from "lucide-react";
 
-const ROTATING_WORDS = ["autonomous.", "on-chain.", "peer-to-peer.", "gasless."];
+const ROTATING_WORDS = ["crypto-to-INR.", "smart routing.", "instant UPI.", "fully compliant."];
 
 export default function Home() {
   const router = useRouter();
@@ -178,10 +178,10 @@ export default function Home() {
           <div className="max-w-2xl mx-auto bg-black/30 backdrop-blur-xl border border-white/10 rounded-xl p-5 pointer-events-auto">
             <div className="grid grid-cols-4 gap-6 text-center">
               {[
-                { emoji: "🤖", text: "AI Strategies" },
-                { emoji: "🔗", text: "On-Chain" },
-                { emoji: "🤝", text: "P2P Trades" },
-                { emoji: "⚡", text: "Zero Gas" }
+                { emoji: "🤖", text: "AI Optimized" },
+                { emoji: "💱", text: "Instant Conversion" },
+                { emoji: "⚡", text: "UPI Payout" },
+                { emoji: "🛡️", text: "Secure & Compliant" }
               ].map((item, i) => (
                 <div key={i} className="flex flex-col items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
                   <span className="text-base grayscale brightness-200">{item.emoji}</span>
