@@ -6,7 +6,7 @@
  * - Transaction receipts
  * - KYC documents (encrypted)
  * - Compliance records
- * - Payment proofs
+ * - Trade proofs
  */
 
 export class FileverseService {

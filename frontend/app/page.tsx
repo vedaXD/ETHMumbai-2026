@@ -41,7 +41,7 @@ export default function Home() {
       lightsContainer.dispatchEvent(new MouseEvent("mousedown"));
     }
     setTimeout(() => {
-      router.push("/payment");
+      router.push("/dashboard");
     }, 1200);
   };
 
