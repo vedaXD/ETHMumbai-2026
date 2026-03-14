@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { BitGoService } from '@/lib/bitgo';
 
 export interface UserBitGoVault {
   walletId: string;
@@ -92,21 +91,27 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // Step 3 — Create BitGo vault (skip if already exists for this address)
+      // Step 3 — Get or create BitGo vault via backend (persisted in DB)
       const existingVault = localStorage.getItem(VAULT_KEY);
       if (!existingVault) {
-        setConnectStep('Creating your BitGo vault on Base Sepolia...');
+        setConnectStep('Creating your BitGo vault...');
         try {
-          const vault = await BitGoService.createAgentWallet(
-            `user_${userAddress.slice(2, 10)}`,
-            `UserVault_${userAddress.slice(0, 8)}`,
-            10000,
-          );
-          const vaultData: UserBitGoVault = { walletId: vault.walletId, address: vault.address };
-          setUserVault(vaultData);
-          localStorage.setItem(VAULT_KEY, JSON.stringify(vaultData));
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+          const res = await fetch(`${backendUrl}/api/users/vault`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address: userAddress }),
+          });
+          const data = await res.json();
+          if (data.success && data.vault) {
+            const vaultData: UserBitGoVault = {
+              walletId: data.vault.walletId,
+              address: data.vault.vaultAddress,
+            };
+            setUserVault(vaultData);
+            localStorage.setItem(VAULT_KEY, JSON.stringify(vaultData));
+          }
         } catch (vaultErr: any) {
-          // Non-fatal — user can still use the app
           console.warn('BitGo vault creation failed:', vaultErr.message);
         }
       } else {

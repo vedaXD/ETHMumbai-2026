@@ -28,15 +28,17 @@ export class BitGoService {
   static async createAgentWallet(
     agentId: string,
     agentName: string,
-    maxSpendLimit: number = 100
+    maxSpendLimit: number = 100,
+    ownerAddress?: string,
+    personality?: string,
   ) {
     try {
-      console.log(`[BitGo] Creating policy-governed wallet for agent ${agentId}`);
+      console.log(`[BitGo] Creating wallet for agent ${agentId}`);
 
       const response = await fetch(`${this.baseUrl}/wallets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId, agentName, maxSpendLimit }),
+        body: JSON.stringify({ agentId, agentName, maxSpendLimit, ownerAddress, personality }),
       });
 
       const data = await response.json();

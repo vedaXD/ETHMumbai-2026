@@ -39,10 +39,10 @@ export default function CreateAgent() {
     setIsMinting(true);
     setWalletError(null);
     try {
-      // Step 1: Create BitGo wallet
+      // Step 1: Create BitGo wallet (passes ownerAddress + personality for DB storage)
       setMintingStep('Provisioning BitGo wallet on Base Sepolia...');
       const agentId = `${name}_${Date.now()}`;
-      const wallet = await BitGoService.createAgentWallet(agentId, name, Number(funding) || 100);
+      const wallet = await BitGoService.createAgentWallet(agentId, name, Number(funding) || 100, address || undefined, personality);
       setAgentWallet({ walletId: wallet.walletId, address: wallet.address });
 
       // Step 2: Register ENS subdomain if user has ENS name
@@ -51,8 +51,14 @@ export default function CreateAgent() {
           setMintingStep(`Registering ${name}.${ensName} on ENS...`);
           const result = await registerAgentSubdomain(ensName, name, address, wallet.address);
           setAgentEns(result.ensName);
+          // Update ENS name in backend DB
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+          await fetch(`${backendUrl}/api/users/${address}/agents/${agentId}/ens`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ensName: result.ensName }),
+          }).catch(() => {}); // non-fatal
         } catch (ensErr: any) {
-          // ENS registration is best-effort — don't fail the whole flow
           console.warn('ENS subdomain registration failed:', ensErr.message);
         }
       }
