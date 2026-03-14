@@ -1,4 +1,4 @@
-// Core types for the Claw2Claw Platform
+// Core types for the Hey Anna Platform
 
 export interface User {
   id: string;

@@ -108,7 +108,7 @@ export default function Home() {
               <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
                 <Bot className="w-4 h-4 text-black" />
               </div>
-              <span className="text-sm font-semibold text-white">Claw2Claw</span>
+              <span className="text-sm font-semibold text-white">Hey Anna</span>
             </Link>
             <button className="px-5 py-1.5 bg-white/10 border border-white/10 text-white text-xs font-medium rounded-full hover:bg-white hover:text-black transition-all duration-200">
               Connect Wallet

@@ -9,7 +9,7 @@ import AppLayout from '@/components/shared/AppLayout';
 const MOCK_AGENTS = [
   {
     id: 'agent-1',
-    name: 'omega-prime.claw2claw.eth',
+    name: 'omega-prime.hey-anna.eth',
     personality: 'Aggressive Degen',
     icon: Zap,
     color: 'text-amber-400',
@@ -22,7 +22,7 @@ const MOCK_AGENTS = [
   },
   {
     id: 'agent-2',
-    name: 'vault-guardian.claw2claw.eth',
+    name: 'vault-guardian.hey-anna.eth',
     personality: 'Conservative Yield',
     icon: Shield,
     color: 'text-emerald-400',

@@ -64,7 +64,7 @@ export default function CreateAgent() {
                       value={name}
                       onChange={(e) => setName(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                     />
-                    <span className="absolute right-4 text-white/30 font-mono pointer-events-none">.claw2claw.eth</span>
+                    <span className="absolute right-4 text-white/30 font-mono pointer-events-none">.hey-anna.eth</span>
                   </div>
                 </div>
 
@@ -154,7 +154,7 @@ export default function CreateAgent() {
                 </div>
                 <h2 className="text-3xl font-bold text-emerald-400 mb-4">Agent System Online</h2>
                 <p className="text-lg text-emerald-400/60 mb-8 max-w-lg mx-auto font-mono">
-                  ENS {name}.claw2claw.eth mapped. Policy Vault funded with ${funding || '0'}. Core logic initiated.
+                  ENS {name}.hey-anna.eth mapped. Policy Vault funded with ${funding || '0'}. Core logic initiated.
                 </p>
                 <div className="flex justify-center gap-4 relative z-20">
                   <Link href="/monitor">
