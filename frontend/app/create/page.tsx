@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Bot, Zap, Shield, Target, Plus, Upload } from 'lucide-react';
+import { ChevronLeft, Bot, Zap, Shield, Target, Plus, Upload, Wallet } from 'lucide-react';
 import AppLayout from '@/components/shared/AppLayout';
+import { BitGoService } from '@/lib/bitgo';
 
 const PERSONALITIES = [
   { id: 'aggressive', title: 'Aggressive Degen', desc: 'High risk, high APY farming. Trades memecoins and fresh LP pairs.', icon: Zap, color: 'text-amber-400', border: 'border-amber-400/50', bg: 'bg-amber-400/10' },
@@ -13,20 +14,27 @@ const PERSONALITIES = [
 ];
 
 export default function CreateAgent() {
-  const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [personality, setPersonality] = useState('');
   const [funding, setFunding] = useState('');
   const [isMinting, setIsMinting] = useState(false);
   const [minted, setMinted] = useState(false);
+  const [agentWallet, setAgentWallet] = useState<{ walletId: string; address: string } | null>(null);
+  const [walletError, setWalletError] = useState<string | null>(null);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     setIsMinting(true);
-    // Simulate transaction delay
-    setTimeout(() => {
-      setIsMinting(false);
+    setWalletError(null);
+    try {
+      const agentId = `${name}_${Date.now()}`;
+      const wallet = await BitGoService.createAgentWallet(agentId, name, Number(funding) || 100);
+      setAgentWallet({ walletId: wallet.walletId, address: wallet.address });
       setMinted(true);
-    }, 2500);
+    } catch (err: any) {
+      setWalletError(err.message || 'Failed to provision agent wallet');
+    } finally {
+      setIsMinting(false);
+    }
   };
 
   return (
@@ -41,12 +49,12 @@ export default function CreateAgent() {
             Initialize Bot Protocol
           </h1>
           <p className="text-zinc-400 text-lg mb-12">
-            Configure baseline parameters to assemble your new agent. ENS records will be provisioned.
+            Configure baseline parameters to assemble your new agent. A dedicated BitGo wallet will be provisioned on Base Sepolia.
           </p>
 
           <AnimatePresence mode="wait">
             {!minted ? (
-              <motion.div 
+              <motion.div
                 key="form"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -57,8 +65,8 @@ export default function CreateAgent() {
                 <div className="space-y-3">
                   <label className="block text-sm font-semibold tracking-wide text-zinc-300 uppercase">Agent Name (ENS Subdomain)</label>
                   <div className="relative flex items-center">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Enter bot designation..."
                       className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-primary/50 font-mono"
                       value={name}
@@ -73,12 +81,12 @@ export default function CreateAgent() {
                   <label className="block text-sm font-semibold tracking-wide text-zinc-300 uppercase">Behavioral Core</label>
                   <div className="grid md:grid-cols-3 gap-4">
                     {PERSONALITIES.map((p) => (
-                      <div 
+                      <div
                         key={p.id}
                         onClick={() => setPersonality(p.id)}
                         className={`cursor-pointer rounded-2xl p-5 border transition-all duration-200 ${
-                          personality === p.id 
-                            ? `${p.bg} ${p.border}` 
+                          personality === p.id
+                            ? `${p.bg} ${p.border}`
                             : 'bg-black/30 border-white/5 hover:border-white/20'
                         }`}
                       >
@@ -96,8 +104,8 @@ export default function CreateAgent() {
                     <label className="block text-sm font-semibold tracking-wide text-zinc-300 uppercase">Initial Vault Funding</label>
                     <div className="relative flex items-center">
                       <span className="absolute left-4 text-white/50 font-mono">$</span>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         placeholder="0.00"
                         className="w-full bg-black/50 border border-white/10 rounded-xl pl-8 pr-16 py-4 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-primary/50 font-mono"
                         value={funding}
@@ -117,21 +125,27 @@ export default function CreateAgent() {
                   </div>
                 </div>
 
+                {walletError && (
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm">
+                    ❌ {walletError}
+                  </div>
+                )}
+
                 {/* Action Button */}
                 <div className="pt-6">
                   <button
                     onClick={handleCreate}
                     disabled={!name || !personality || isMinting}
                     className={`w-full py-5 rounded-2xl font-bold text-lg flex items-center justify-center transition-all z-20 relative ${
-                      !name || !personality || isMinting 
+                      !name || !personality || isMinting
                         ? 'bg-white/10 text-white/30 cursor-not-allowed'
                         : 'bg-white text-black hover:bg-white/90 hover:scale-[1.02] active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.2)]'
                     }`}
                   >
                     {isMinting ? (
                       <>
-                        <Bot className="animate-bounce w-5 h-5 mr-3" />
-                        Provisioning ENS & BitGo Wallet...
+                        <Wallet className="animate-bounce w-5 h-5 mr-3" />
+                        Provisioning BitGo Wallet on Base Sepolia...
                       </>
                     ) : (
                       <>
@@ -153,9 +167,34 @@ export default function CreateAgent() {
                   <Shield className="w-12 h-12 text-emerald-400" />
                 </div>
                 <h2 className="text-3xl font-bold text-emerald-400 mb-4">Agent System Online</h2>
-                <p className="text-lg text-emerald-400/60 mb-8 max-w-lg mx-auto font-mono">
-                  ENS {name}.claw2claw.eth mapped. Policy Vault funded with ${funding || '0'}. Core logic initiated.
+                <p className="text-lg text-emerald-400/60 mb-6 max-w-lg mx-auto font-mono">
+                  {name}.claw2claw.eth provisioned with a dedicated BitGo wallet on Base Sepolia.
                 </p>
+
+                {agentWallet && (
+                  <div className="bg-black/40 border border-emerald-500/20 rounded-2xl p-5 mb-8 text-left max-w-lg mx-auto space-y-3">
+                    <div className="flex items-center gap-2 text-emerald-400 text-sm font-semibold mb-1">
+                      <Wallet className="w-4 h-4" /> Agent Wallet
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 uppercase tracking-wide mb-1">Wallet ID</p>
+                      <p className="font-mono text-xs text-white/80 break-all">{agentWallet.walletId}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 uppercase tracking-wide mb-1">Base Sepolia Address</p>
+                      <p className="font-mono text-xs text-emerald-400 break-all">{agentWallet.address}</p>
+                    </div>
+                    <a
+                      href={`https://sepolia.basescan.org/address/${agentWallet.address}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block text-xs text-blue-400 hover:underline mt-1"
+                    >
+                      View on Base Sepolia Explorer ↗
+                    </a>
+                  </div>
+                )}
+
                 <div className="flex justify-center gap-4 relative z-20">
                   <Link href="/monitor">
                     <button className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3 px-8 rounded-xl transition-colors">
@@ -176,3 +215,4 @@ export default function CreateAgent() {
     </AppLayout>
   );
 }
+
