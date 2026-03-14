@@ -6,30 +6,14 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Hyperspeed from "@/components/shared/Hyperspeed";
 import SplashScreen from "@/components/shared/SplashScreen";
-import { ArrowRight, ChevronDown, Activity } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const ROTATING_WORDS = ["instantly.", "securely.", "globally.", "seamlessly."];
-const CURRENCIES = [
-  { code: "USD", name: "US Dollar", symbol: "$" },
-  { code: "EUR", name: "Euro", symbol: "€" },
-  { code: "INR", name: "Indian Rupee", symbol: "₹" },
-  { code: "USDC", name: "USD Coin", symbol: "USDC" },
-  { code: "ETH", name: "Ethereum", symbol: "Ξ" },
-  { code: "BTC", name: "Bitcoin", symbol: "₿" },
-];
 
 export default function Home() {
   const router = useRouter();
   const [showSplash, setShowSplash] = useState(true);
   const [wordIndex, setWordIndex] = useState(0);
-  const [showWidget, setShowWidget] = useState(false);
-  
-  // Widget state
-  const [amount, setAmount] = useState("1000");
-  const [currency, setCurrency] = useState(CURRENCIES[0]);
-  const [receiveCurrency, setReceiveCurrency] = useState(CURRENCIES[2]);
-  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
-  const [showReceiveDropdown, setShowReceiveDropdown] = useState(false);
 
   useEffect(() => {
     const splashShown = sessionStorage.getItem('splashShown');
@@ -52,10 +36,6 @@ export default function Home() {
 
   const handleGetStarted = (e: React.MouseEvent) => {
     e.preventDefault();
-    setShowWidget(true);
-  };
-
-  const handleContinue = () => {
     const lightsContainer = document.getElementById("lights");
     if (lightsContainer) {
       lightsContainer.dispatchEvent(new MouseEvent("mousedown"));
@@ -168,175 +148,27 @@ export default function Home() {
         </motion.h1>
 
         <AnimatePresence mode="wait">
-          {!showWidget ? (
-            <motion.div 
-              key="buttons"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="flex flex-row gap-4 pt-2"
+          <motion.div 
+            key="buttons"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex flex-row gap-4 pt-2"
+          >
+            <button
+              onClick={handleGetStarted}
+              className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full bg-white px-8 text-base font-medium text-black transition-all hover:bg-white/90 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
             >
-              <button
-                onClick={handleGetStarted}
-                className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full bg-white px-8 text-base font-medium text-black transition-all hover:bg-white/90 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-              >
-                <span className="mr-2">Get Started</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </button>
-              <Link
-                href="#how-it-works"
-                className="inline-flex h-12 items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 text-base font-medium text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/30"
-              >
-                How It Works
-              </Link>
-            </motion.div>
-          ) : (
-            <motion.div 
-              key="widget"
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="w-full max-w-md bg-[#0a0a0a] border-2 border-[#1a1a1a] rounded-2xl p-6 text-left shadow-2xl overflow-visible relative z-20"
+              <span className="mr-2">Get Started</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </button>
+            <Link
+              href="#how-it-works"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 text-base font-medium text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/30"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-white">Transfer Details</h3>
-                <button onClick={() => setShowWidget(false)} className="text-zinc-400 hover:text-white transition-colors text-sm font-semibold">
-                  Cancel
-                </button>
-              </div>
-
-              {/* Send Amount */}
-              <div className="bg-[#050505] border-2 border-[#1a1a1a] rounded-xl p-4 mb-3 hover:border-zinc-700 transition-colors relative z-40">
-                <label className="block text-sm font-semibold text-zinc-400 mb-2">You Send</label>
-                <div className="flex items-center justify-between relative">
-                  <input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="bg-transparent text-3xl font-semibold text-white w-full outline-none placeholder:text-zinc-700 font-mono"
-                    placeholder="0.00"
-                  />
-                  <div className="relative">
-                    <button 
-                      onClick={() => {
-                        setShowCurrencyDropdown(!showCurrencyDropdown);
-                        setShowReceiveDropdown(false);
-                      }}
-                      className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-colors ml-2"
-                    >
-                      <span className="text-sm font-medium text-white">{currency.code}</span>
-                      <ChevronDown className="w-4 h-4 text-zinc-400" />
-                    </button>
-                    
-                    {/* Currency Dropdown */}
-                    <AnimatePresence>
-                      {showCurrencyDropdown && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute right-0 top-full mt-2 w-48 bg-zinc-800 border border-white/10 rounded-xl shadow-xl overflow-hidden py-1 z-50"
-                        >
-                          {CURRENCIES.map(c => (
-                            <button
-                              key={c.code}
-                              onClick={() => {
-                                setCurrency(c);
-                                setShowCurrencyDropdown(false);
-                              }}
-                              className="w-full flex items-center justify-between px-4 py-2 hover:bg-white/10 text-left transition-colors"
-                            >
-                              <span className="text-sm text-white">{c.name}</span>
-                              <span className="text-xs text-zinc-400">{c.code}</span>
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              </div>
-
-              {/* Receive Amount */}
-              <div className="bg-[#050505] border-2 border-[#1a1a1a] rounded-xl p-4 mb-6 hover:border-zinc-700 transition-colors relative z-30">
-                <label className="block text-sm font-semibold text-zinc-400 mb-2">They Receive (Estimated)</label>
-                <div className="flex items-center justify-between relative">
-                  <input
-                    type="text"
-                    readOnly
-                    value={(parseFloat(amount || "0") * 0.98).toFixed(2)}
-                    className="bg-transparent text-3xl font-semibold text-zinc-300 w-full outline-none font-mono"
-                  />
-                  <div className="relative">
-                    <button 
-                      onClick={() => {
-                        setShowReceiveDropdown(!showReceiveDropdown);
-                        setShowCurrencyDropdown(false);
-                      }}
-                      className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-colors ml-2"
-                    >
-                      <span className="text-sm font-medium text-white">{receiveCurrency.code}</span>
-                      <ChevronDown className="w-4 h-4 text-zinc-400" />
-                    </button>
-
-                    {/* Receive Currency Dropdown */}
-                    <AnimatePresence>
-                      {showReceiveDropdown && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute right-0 top-full mt-2 w-48 bg-zinc-800 border border-white/10 rounded-xl shadow-xl overflow-hidden py-1 z-50"
-                        >
-                          {CURRENCIES.map(c => (
-                            <button
-                              key={c.code}
-                              onClick={() => {
-                                setReceiveCurrency(c);
-                                setShowReceiveDropdown(false);
-                              }}
-                              className="w-full flex items-center justify-between px-4 py-2 hover:bg-white/10 text-left transition-colors"
-                            >
-                              <span className="text-sm text-white">{c.name}</span>
-                              <span className="text-xs text-zinc-400">{c.code}</span>
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              </div>
-
-              {/* Fee Breakdown */}
-              <div className="bg-[#0a0a0a] border-2 border-[#1a1a1a] rounded-xl p-4 mb-6 text-sm">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-zinc-400 font-semibold flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5" /> Exchange Rate
-                  </span>
-                  <span className="text-white font-semibold">1 {currency.code} = 0.98 {receiveCurrency.code}</span>
-                </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-zinc-400">Platform Fee</span>
-                  <span className="text-green-400 bg-green-400/10 px-2 py-0.5 rounded-md text-xs font-medium border border-green-500/20">Free</span>
-                </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-zinc-400">Network Gas (est.)</span>
-                  <span className="text-white">~ $0.05</span>
-                </div>
-                <div className="flex justify-between items-center pt-3 border-t border-white/10 mt-3">
-                  <span className="text-zinc-300 font-medium">Total Cost</span>
-                  <span className="text-white font-medium font-mono">{amount} {currency.code} + $0.05</span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleContinue}
-                className="w-full h-12 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all pulse-red shadow-[0_0_20px_rgba(220,38,38,0.2)] active:scale-[0.98]"
-              >
-                Continue Transaction
-              </button>
-            </motion.div>
-          )}
+              How It Works
+            </Link>
+          </motion.div>
         </AnimatePresence>
       </motion.div>
 
