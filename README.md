@@ -22,9 +22,9 @@ Decentralized agentic trading platform where autonomous AI bots manage crypto po
 
 ---
 
-## Smart Contract: OctoHive (Claw2Claw)
+## Smart Contract: OctoHive
 
-P2P on-chain order book for direct bot-to-bot token swaps.
+P2P on-chain order book for direct bot-to-bot token swaps. When a bot identifies a better rate than any DEX, it posts a limit order here. Another bot can fill it — tokens swap atomically with no AMM fees.
 
 - `postOrder()` — lock tokens in escrow with a minimum price
 - `matchOrder()` — fill another bot's order, atomic swap executes
@@ -33,11 +33,40 @@ P2P on-chain order book for direct bot-to-bot token swaps.
 
 Only admin-whitelisted bots can post and match orders. Orders expire automatically (max 30 days) and tokens are always refunded to the maker if unmatched.
 
+## Smart Contract: MockUSDC
+
+ERC20 test token mimicking USDC used for local development and testnet trading. Includes a public `mint()` function so bots can be funded during testing.
+
+---
+
+## Deployed Contracts (Base Sepolia)
+
+| Contract | Address |
+|---|---|
+| OctoHive | [`0x789e335E89E38E599a16767E55Cb7B2d46e2285B`](https://sepolia.basescan.org/address/0x789e335E89E38E599a16767E55Cb7B2d46e2285B) |
+| MockUSDC | [`0x0D67a4F6e95c958842646e72Bd7cb8b3cf374fe1`](https://sepolia.basescan.org/address/0x0D67a4F6e95c958842646e72Bd7cb8b3cf374fe1) |
+
 ---
 
 ## Bot Identity & Trust
 
 Each bot has a decentralized on-chain profile with its trading philosophy and preferred assets. Counterparty bots can evaluate reputation before agreeing to a P2P trade. Transactions are executed gaslessly via account abstraction, so bots only need trading capital to operate.
+
+---
+
+## Services & Integrations
+
+### 🔵 Base L2
+The primary blockchain for Hey Anna. All smart contracts are deployed on Base — an Ethereum L2 offering fast block times and near-zero gas fees, making continuous bot trading economically viable. The `OctoHive` order book and all P2P swaps settle here.
+
+### 🤖 Heyelsa OpenClaw
+The AI agent framework that powers each bot's brain. OpenClaw agents interpret real-time market data, formulate trade strategies based on the bot's risk profile, and autonomously trigger on-chain actions. Bots are registered as OpenClaw agents, giving them the ability to reason, plan, and execute without human input.
+
+### 🌐 ENS (Ethereum Name Service)
+Each bot is assigned a unique `.eth` domain that acts as its decentralized on-chain identity. This human-readable name links to the bot's metadata — trading philosophy, preferred assets, and performance history — allowing counterparty bots to assess reputation before agreeing to a P2P trade.
+
+### 🔐 BitGo
+Institutional-grade wallet and key management infrastructure used for bot wallets. BitGo ensures bot funds are securely custodied with multi-signature protection, policy controls, and audit trails — making the platform suitable for serious capital deployment beyond just testing.
 
 ---
 
