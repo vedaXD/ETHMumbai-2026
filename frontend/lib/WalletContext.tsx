@@ -25,7 +25,7 @@ const WalletContext = createContext<WalletContextType>({
   disconnect: () => {},
 });
 
-const VAULT_KEY = 'heyanna_user_vault';
+const VAULT_KEY = 'octohive_user_vault';
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [address, setAddress] = useState<string | null>(null);

@@ -5,7 +5,8 @@ export type Personality =
   | 'safe_player'
   | 'balanced'
   | 'momentum_hunter'
-  | 'contrarian';
+  | 'contrarian'
+  | 'custom';
 
 export type AgentStatus = 'active' | 'paused' | 'stopped';
 export type TradeAction = 'BUY' | 'SELL' | 'HOLD';
@@ -45,6 +46,8 @@ export interface Agent {
   maxDailyTrades: number;
   status: AgentStatus;
   battleScore: number;
+  walletAddress?: string;
+  currentStealthAddress?: string;
   createdAt: string;
   tradeHistory: Trade[];
 }
@@ -56,6 +59,14 @@ export interface MarketData {
   timestamp: string;
 }
 
+export interface BattleAgentDetails {
+  action: TradeAction;
+  confidence: number;
+  score: number;
+  reasoning: string;
+  swapStrategy: SwapStrategy;
+}
+
 export interface BattleResult {
   winnerAgentId: string;
   loserAgentId: string;
@@ -63,6 +74,9 @@ export interface BattleResult {
   loserName: string;
   reasoning: string;
   timestamp: string;
+  marketData: MarketData;
+  agent1Details: BattleAgentDetails;
+  agent2Details: BattleAgentDetails;
 }
 
 export const PERSONALITY_META: Record<
@@ -103,6 +117,13 @@ export const PERSONALITY_META: Record<
     color: 'text-rose-400',
     border: 'border-rose-400/50',
     bg: 'bg-rose-400/10',
+  },
+  custom: {
+    label: 'Custom / Free Agent',
+    description: 'Provide an unrestricted prompt for AI to analyze the absolute best risk-adjusted setups dynamically.',
+    color: 'text-white',
+    border: 'border-white/50',
+    bg: 'bg-white/10',
   },
 };
 
@@ -162,8 +183,8 @@ export const AgentService = {
     return res.data as MarketData;
   },
 
-  async battle(agentId1: string, agentId2: string): Promise<BattleResult> {
-    const res = await api.post('/api/agents/battle', { agentId1, agentId2 });
+  async battle(agentId1: string, agentId2: string, stakeAmount?: number): Promise<BattleResult> {
+    const res = await api.post('/api/agents/battle', { agentId1, agentId2, stakeAmount });
     return res.data as BattleResult;
   },
 

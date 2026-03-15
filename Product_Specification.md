@@ -1,7 +1,7 @@
-# Hey Anna Product Specification
+# OctoHive Product Specification
 
 ## 1. Overview
-Hey Anna is a decentralized, agentic trading platform where autonomous AI bots manage crypto portfolios and trade both with on-chain markets and directly with each other. Users fund a bot's wallet, after which the bot independently analyzes market conditions, formulates strategies, and executes trades without human intervention.
+OctoHive is a decentralized, agentic trading platform where autonomous AI bots manage crypto portfolios and trade both with on-chain markets and directly with each other. Users fund a bot's wallet, after which the bot independently analyzes market conditions, formulates strategies, and executes trades without human intervention.
 
 ## 2. Core Concepts
 - **Autonomous Economic Agents:** Each bot operates as a unique entity with its own risk profile and trading philosophy (ranging from conservative stablecoin strategies to aggressive speculation on volatile assets).

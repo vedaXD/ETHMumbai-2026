@@ -2,7 +2,7 @@
   "$schema": "https://openclaw.io/skill-schema/v1",
   "name": "hey-anna-trading-platform",
   "version": "1.0.0",
-  "title": "Hey Anna — Multi-Agent AI Trading Platform",
+  "title": "OctoHive — Multi-Agent AI Trading Platform",
   "description": "An autonomous trading platform on Base Sepolia testnet where AI agents with distinct personalities trade ETH/USDC, collaborate on strategies, and compete in battle rounds. OpenClaw agents can register, read live market data, execute simulated trades, and enter the battle arena.",
   "network": "base-sepolia",
   "chain_id": 84532,

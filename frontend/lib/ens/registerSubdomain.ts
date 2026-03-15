@@ -44,6 +44,20 @@ const setAddrAbi = [
   },
 ]
 
+const setTextAbi = [
+  {
+    name: 'setText',
+    type: 'function' as const,
+    inputs: [
+      { name: 'node', type: 'bytes32' },
+      { name: 'key', type: 'string'  },
+      { name: 'value', type: 'string'  },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable' as const,
+  },
+]
+
 export interface SubdomainResult {
   ensName: string
   txHash1: string
@@ -108,6 +122,48 @@ export async function registerAgentSubdomain(
     txHash1,
     txHash2,
   }
+}
+
+/**
+ * Set Text Records for an agent on the Public Resolver.
+ * @param ensName Complete ENS name (e.g. "mybot.xoham.eth")
+ * @param ownerAddress Wallet address sending the transaction
+ * @param records Object containing key-value pairs to set (e.g. avatar, description)
+ */
+export async function setAgentTextRecords(
+  ensName: string,
+  ownerAddress: string,
+  records: Record<string, string>
+): Promise<string[]> {
+  const ethereum = (window as any).ethereum
+  if (!ethereum) throw new Error('No Web3 wallet found')
+
+  const node = namehash(ensName)
+  const txHashes: string[] = []
+
+  for (const [key, value] of Object.entries(records)) {
+    if (!value) continue;
+    
+    const textData = encodeFunctionData({
+      abi: setTextAbi,
+      functionName: 'setText',
+      args: [node, key, value],
+    })
+
+    try {
+      const txHash: string = await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{ from: ownerAddress, to: PUBLIC_RESOLVER, data: textData }],
+      })
+      txHashes.push(txHash)
+      // Wait briefly between txs to avoid overlap
+      await waitForReceipt(txHash, 15)
+    } catch (err) {
+      console.warn(`Failed to set text record [${key}]:`, err)
+    }
+  }
+
+  return txHashes
 }
 
 /** Poll for a transaction receipt (max ~60s) */

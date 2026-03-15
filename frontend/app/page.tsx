@@ -112,7 +112,7 @@ export default function Home() {
               <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
                 <Bot className="w-4 h-4 text-black" />
               </div>
-              <span className="text-sm font-semibold text-white">Hey Anna</span>
+              <span className="text-sm font-semibold text-white">OctoHive</span>
             </Link>
                 <UserEnsBadge address={address} />
           </div>

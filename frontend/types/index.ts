@@ -1,4 +1,4 @@
-// Core types for the Hey Anna Platform
+// Core types for the OctoHive Platform
 
 export interface User {
   id: string;
@@ -13,6 +13,21 @@ export interface IPFSMetadata {
   fileType: string;
   uploadedAt: Date;
   metadata?: Record<string, any>;
+}
+
+export interface Agent {
+  id: string;
+  name: string;
+  personality: string;
+  budget?: number;
+  walletAddress?: string;
+  ensName?: string;
+  // ENS Rich Profile fields
+  tagline?: string;
+  avatar?: string;
+  allowedCryptos?: string[];
+  tradeHistory?: any[];
+  [key: string]: any;
 }
 
 export interface HeyelsaOptimization {

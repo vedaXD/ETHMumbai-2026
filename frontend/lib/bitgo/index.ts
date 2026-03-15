@@ -31,6 +31,8 @@ export class BitGoService {
     maxSpendLimit: number = 100,
     ownerAddress?: string,
     personality?: string,
+    tagline?: string,
+    allowedCryptos?: string[]
   ) {
     try {
       console.log(`[BitGo] Creating wallet for agent ${agentId}`);
@@ -38,7 +40,7 @@ export class BitGoService {
       const response = await fetch(`${this.baseUrl}/wallets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId, agentName, maxSpendLimit, ownerAddress, personality }),
+        body: JSON.stringify({ agentId, agentName, maxSpendLimit, ownerAddress, personality, tagline, allowedCryptos }),
       });
 
       const data = await response.json();
