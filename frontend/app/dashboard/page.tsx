@@ -63,7 +63,7 @@ export default function DashboardHub() {
               Command Center
             </h1>
             <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-              Welcome to the Hey Anna terminal. Select your next directive to manage your autonomous AI trading fleet.
+              Welcome to the OctoHive terminal. Select your next directive to manage your autonomous AI trading fleet.
             </p>
           </div>
 
