@@ -12,6 +12,7 @@ import { useWallet } from '@/lib/WalletContext';
 import { useEnsName } from 'wagmi';
 import { sepolia, baseSepolia } from 'wagmi/chains';
 import { AgentService, PERSONALITY_META, Personality } from '@/lib/agents';
+import { registerAgentSubdomain, setAgentTextRecords } from '@/lib/ens/registerSubdomain';
 
 const PERSONALITY_ICONS: Record<Personality, ElementType> = {
   risk_taker: Zap,
@@ -74,17 +75,31 @@ export default function CreateAgent() {
       setAgentWallet({ walletId: wallet.walletId, address: wallet.address });
       setAgentIdCreated(agentId);
 
-      // Step 3: Register ENS subdomain (Optional - Disabled for Demo due to RPC limits)
-      /* 
+      // Step 3: Register ENS subdomain  agentname.ensname.eth
       if (ensName && address) {
         try {
           setMintingStep(`Registering ${name}.${ensName} on ENS...`);
-          // ... ENS Logic
+          const ensResult = await registerAgentSubdomain(
+            ensName,          // e.g. xoham.eth
+            name,             // e.g. mybot
+            address,
+            wallet.address,   // BitGo vault address
+          );
+          setAgentEns(ensResult.ensName);
+
+          // Step 4: Write text records (personality, tagline, allowed assets)
+          setMintingStep(`Writing ENS text records for ${ensResult.ensName}...`);
+          await setAgentTextRecords(ensResult.ensName, address, {
+            description: tagline || `${name} — autonomous DeFi agent`,
+            personality: personality,
+            'com.twitter': allowedCryptos || 'any',
+            url: `https://octohive.xyz/agents/${name}`,
+          });
         } catch (ensErr: any) {
           console.warn('ENS subdomain registration failed:', ensErr.message);
+          // Non-blocking — agent is still created even if ENS fails
         }
       }
-      */
 
       setMinted(true);
     } catch (err: any) {
@@ -383,6 +398,30 @@ export default function CreateAgent() {
                         View on Base Sepolia Explorer ↗
                       </a>
                     </div>
+
+                    {/* ENS Identity */}
+                    {agentEns && (
+                      <div className="bg-violet-500/10 border border-violet-500/30 rounded-2xl p-5 mb-6 text-left max-w-lg mx-auto">
+                        <div className="flex items-center gap-2 text-violet-400 text-sm font-semibold mb-3">
+                          <Check className="w-4 h-4" /> ENS Identity Registered
+                        </div>
+                        <div className="font-mono text-lg text-white font-bold mb-1">{agentEns}</div>
+                        <div className="text-xs text-zinc-500 mb-3">Subdomain minted on Base Sepolia · Text records written on-chain</div>
+                        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                          <div><span className="text-zinc-600">personality: </span><span className="text-violet-400">{personality}</span></div>
+                          <div><span className="text-zinc-600">assets: </span><span className="text-violet-400">{allowedCryptos || 'any'}</span></div>
+                          {tagline && <div className="col-span-2"><span className="text-zinc-600">description: </span><span className="text-zinc-300">{tagline}</span></div>}
+                        </div>
+                        <a
+                          href={`https://app.ens.domains/${agentEns}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block text-xs text-violet-400 hover:underline mt-3"
+                        >
+                          View on ENS App ↗
+                        </a>
+                      </div>
+                    )}
 
                     <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-5 mb-8 max-w-lg mx-auto">
                       <h3 className="text-blue-400 font-bold mb-2 flex items-center justify-center">

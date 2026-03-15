@@ -1,5 +1,12 @@
 {
-  "users": {},
+  "users": {
+    "0x4cad382572c51bf90a0402e00b7882d25a161ae0": {
+      "address": "0x4cad382572c51bf90a0402e00b7882d25a161ae0",
+      "walletId": "69b62b2129b15cb19482d6ec97129aed",
+      "vaultAddress": "0xeefc8013ceeaaa31701c9c55ffdacb90ee6d47ba",
+      "createdAt": "2026-03-15T03:44:34.314Z"
+    }
+  },
   "agents": {
     "test_1773534961460": {
       "agentId": "test_1773534961460",
@@ -13,6 +20,32 @@
       "ownerAddress": "0x4cad382572c51bf90a0402e00b7882d25a161ae0",
       "coin": "tbaseeth",
       "createdAt": "2026-03-15T00:36:19.297Z"
+    },
+    "wassupjudges_1773546143726": {
+      "agentId": "wassupjudges_1773546143726",
+      "name": "wassupjudges",
+      "personality": "risk_taker",
+      "tagline": "Ill be your superman for your Cryptos",
+      "allowedCryptos": [],
+      "walletId": "69b62ab00cb168d42d0a4472328c0ca7",
+      "walletAddress": "0xe85eacee669d57e01df08db55aee4e79915f4d17",
+      "ensName": null,
+      "ownerAddress": "0x4cad382572c51bf90a0402e00b7882d25a161ae0",
+      "coin": "tbaseeth",
+      "createdAt": "2026-03-15T03:42:41.578Z"
+    },
+    "chotabheem_1773546338665": {
+      "agentId": "chotabheem_1773546338665",
+      "name": "chotabheem",
+      "personality": "risk_taker",
+      "tagline": "guardian of crypto",
+      "allowedCryptos": [],
+      "walletId": "69b62b7430f261947f2b659848121eb5",
+      "walletAddress": "0x59ecedd176861b280a59f63221e2955ed002c867",
+      "ensName": null,
+      "ownerAddress": "0x4cad382572c51bf90a0402e00b7882d25a161ae0",
+      "coin": "tbaseeth",
+      "createdAt": "2026-03-15T03:45:57.454Z"
     }
   }
 }

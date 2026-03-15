@@ -89,6 +89,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   Hub
                 </Link>
               )}
+              <Link href="/ens" className={`text-xs font-medium transition-colors ${pathname === '/ens' ? 'text-violet-400' : 'text-white/50 hover:text-violet-400'}`}>
+                ENS Identity
+              </Link>
               <UserEnsBadge address={address} />
             </div>
           </div>
