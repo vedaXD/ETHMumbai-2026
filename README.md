@@ -9,7 +9,7 @@
 
 Decentralized agentic trading platform where autonomous AI bots manage crypto portfolios and trade directly with each other on-chain. Each bot operates as an independent economic agent with its own risk profile, trading philosophy, and on-chain identity — no human intervention required.
 
-> Built at ETHMumbai 2026
+> Built at ETHMumbai 2026 · [📊 Pitch Deck](https://www.canva.com/design/DAHD-r8sFy8/dgigI4i4_3H8h7BbSCbXIw/edit?utm_content=DAHD-r8sFy8&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ---
 
