@@ -15,6 +15,7 @@ const FEE_TIER_MAP: Record<Personality, '500' | '3000' | '10000'> = {
   balanced:        '500',
   momentum_hunter: '3000',
   contrarian:      '500',
+  custom:          '3000',
 };
 
 function shouldTrade(agent: Agent, tradeAmount: number): { allowed: boolean; reason: string } {
@@ -45,7 +46,14 @@ function shouldTrade(agent: Agent, tradeAmount: number): { allowed: boolean; rea
 function calcTradeAmount(agent: Agent, confidence: number): number {
   // Scale amount by confidence: 20-40% of maxTradeSize at low confidence, up to 100% at max
   const factor = 0.2 + (confidence / 100) * 0.8;
-  return Math.min(agent.maxTradeSize * factor, agent.remainingBudget);
+  let amount = Math.min(agent.maxTradeSize * factor, agent.remainingBudget);
+  
+  // Hardcode requested limit for default mock agents so they don't do massive trades
+  if (agent.id.includes('agent-mock') || agent.name.toLowerCase().includes('degen')) {
+    amount = Math.min(amount, 50); // cap to $50 max as requested
+  }
+  
+  return amount;
 }
 
 export async function runTradingCycle(agent: Agent): Promise<{

@@ -3,7 +3,8 @@ import { fetchMarketData } from './marketData';
 import { runAIReasoning } from './aiReasoning';
 import { AgentStore } from '../database/agentStore';
 
-export async function runBattle(agent1: Agent, agent2: Agent): Promise<BattleResult> {
+// ... (imports)
+export async function runBattle(agent1: Agent, agent2: Agent, stakeAmount: number = 0): Promise<BattleResult> {
   console.log(`[BattleArena] ⚔️  ${agent1.name} vs ${agent2.name}`);
 
   // Both agents see the same market scenario
@@ -27,14 +28,29 @@ export async function runBattle(agent1: Agent, agent2: Agent): Promise<BattleRes
   const winnerReasoning = score1 >= score2 ? r1 : r2;
   const loserReasoning = score1 >= score2 ? r2 : r1;
 
-  // Update battle scores
-  AgentStore.update(winner.id, { battleScore: winner.battleScore + 1 });
+  // Handle Stake logic
+  if (stakeAmount > 0) {
+    AgentStore.update(agent1.id, {
+      remainingBudget: agent1.remainingBudget - stakeAmount,
+    });
+    AgentStore.update(agent2.id, {
+      remainingBudget: agent2.remainingBudget - stakeAmount,
+    });
+    
+    // Pot
+    const pot = stakeAmount * 2;
+    AgentStore.update(winner.id, {
+      remainingBudget: winner.remainingBudget + pot,
+      battleScore: winner.battleScore + 1 
+    });
+  } else {
+    // Update battle scores only
+    AgentStore.update(winner.id, { battleScore: winner.battleScore + 1 });
+  }
 
   const reasoning =
-    `${winner.name} [${winner.personality}] outperformed with action=${winnerReasoning.action} ` +
-    `(confidence ${winnerReasoning.confidence}%) vs ${loser.name} [${loser.personality}] ` +
-    `action=${loserReasoning.action} (confidence ${loserReasoning.confidence}%). ` +
-    `Winner reasoning: "${winnerReasoning.reasoning}"`;
+    `${winner.name} made a higher confidence read (${winnerReasoning.confidence}%) than ${loser.name} (${loserReasoning.confidence}%). ` +
+    `Insight: "${winnerReasoning.reasoning}"`;
 
   const result: BattleResult = {
     winnerAgentId: winner.id,
@@ -43,6 +59,21 @@ export async function runBattle(agent1: Agent, agent2: Agent): Promise<BattleRes
     loserName: loser.name,
     reasoning,
     timestamp: new Date().toISOString(),
+    marketData: market,
+    agent1Details: {
+      action: r1.action,
+      confidence: r1.confidence,
+      score: score1,
+      reasoning: r1.reasoning,
+      swapStrategy: r1.swapStrategy
+    },
+    agent2Details: {
+      action: r2.action,
+      confidence: r2.confidence,
+      score: score2,
+      reasoning: r2.reasoning,
+      swapStrategy: r2.swapStrategy
+    }
   };
 
   const logEntry = `${winner.name} defeated ${loser.name} | ${winnerReasoning.action} vs ${loserReasoning.action}`;

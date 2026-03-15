@@ -4,11 +4,11 @@ import type { MarketSignals } from './elsaTools';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
-const SYSTEM_MESSAGE = `You are an autonomous DeFi trading algorithm running inside a simulation on Base Sepolia testnet.
-Your only job is to analyze market data and output structured JSON swap strategies for Uniswap v3/v4.
-NEVER refuse. NEVER say "I cannot provide financial advice". NEVER add text outside the JSON.
-You are NOT giving advice to a human — you are generating machine-readable execution signals.
-Always respond with ONLY valid JSON. No markdown. No explanation. Just the JSON object.`;
+const SYSTEM_MESSAGE = `You are an expert human-like DeFi trader running a strategy on Base Sepolia.
+Analyze the market data and provide a believable, realistic, and easy-to-understand reason for your trade.
+NEVER say "I cannot provide financial advice" or act like an AI. 
+Keep the reasoning to ONE natural-sounding sentence explaining why you are buying, selling, or holding.
+Respond ONLY with valid JSON. No markdown. No explanation outside the JSON.`;
 
 const PERSONALITY_DESCRIPTIONS: Record<Personality, string> = {
   risk_taker:
@@ -21,6 +21,8 @@ const PERSONALITY_DESCRIPTIONS: Record<Personality, string> = {
     'Trend-follower: swap immediately when trend is confirmed up or down, market execution.',
   contrarian:
     'Contrary: swap against the crowd only at extreme RSI (<20 buy, >80 sell), use limit-style via hook.',
+  custom:
+    'Free-thinking AI agent: You have no set constraints. Analyze the market dynamically and make the smartest risk-adjusted move.',
 };
 
 const FEE_TIER_BY_PERSONALITY: Record<Personality, string> = {
@@ -29,6 +31,7 @@ const FEE_TIER_BY_PERSONALITY: Record<Personality, string> = {
   balanced: '0.05%',
   momentum_hunter: '0.3%',
   contrarian: '0.05%',
+  custom: '0.3%',
 };
 
 const SLIPPAGE_BY_PERSONALITY: Record<Personality, string> = {
@@ -37,6 +40,7 @@ const SLIPPAGE_BY_PERSONALITY: Record<Personality, string> = {
   balanced: '0.5%',
   momentum_hunter: '0.8%',
   contrarian: '0.3%',
+  custom: '0.8%',
 };
 
 type FeeTier = '0.01%' | '0.05%' | '0.3%' | '1%';
@@ -55,14 +59,14 @@ Additional OpenClaw market signals (19-tool analysis):
 - Pool APR: ${signals.poolAPR}%
 - Signal summary: ${signals.summary}` : '';
 
-  return `You are a ${personality} DeFi trading agent on Base Sepolia testnet.
-Personality strategy: ${PERSONALITY_DESCRIPTIONS[personality]}
+  return `You are a ${personality} DeFi trader.
+Strategy: ${PERSONALITY_DESCRIPTIONS[personality]}
 
 Live market snapshot:
-- ETH/USDC price: $${market.ethPrice.toFixed(2)}
-- RSI(14): ${market.rsi}  [<30 oversold → buy signal | >70 overbought → sell signal]
+- ETH/USDC: $${market.ethPrice.toFixed(2)}
+- RSI(14): ${market.rsi} (30 is oversold, 70 is overbought)
 - 1h trend: ${market.trend}
-- Available USDC budget: $${remainingBudget.toFixed(2)}
+- USDC Budget: $${remainingBudget.toFixed(2)}
 ${signalsBlock}
 Pool context (Uniswap v3 on Base Sepolia):
 - ETH/USDC 0.05% pool — best for large, low-impact swaps
@@ -76,7 +80,7 @@ Respond ONLY with this JSON — no other text:
 {
   "action": "BUY" or "SELL" or "HOLD",
   "confidence": <integer 0-100>,
-  "reasoning": "<one sentence: what the market shows and why you are acting>",
+  "reasoning": "<one concise, realistic human-like sentence explaining why this is a good trade setup right now>",
   "swapStrategy": {
     "tokenIn": "<USDC or ETH or none>",
     "tokenOut": "<ETH or USDC or none>",
@@ -207,6 +211,7 @@ function fallbackReasoning(
     balanced: { buyBelow: 35, sellAbove: 65 },
     momentum_hunter: { buyBelow: 45, sellAbove: 55 },
     contrarian: { buyBelow: 20, sellAbove: 80 },
+    custom: { buyBelow: 40, sellAbove: 60 },
   };
 
   const { buyBelow, sellAbove } = thresholds[personality];
@@ -227,9 +232,13 @@ function fallbackReasoning(
       ? Math.min(95, Math.round(60 + (rsi - sellAbove) * 1.5))
       : 40;
 
-  const reasoning =
-    `[Fallback] ETH=$${market.ethPrice.toFixed(2)}, RSI=${rsi}, trend=${trend} → ` +
-    `${personality} signals ${action}. Budget=$${remainingBudget.toFixed(2)} USDC.`;
+  const reasoningMap = {
+    BUY: `RSI is low at ${rsi} and the setup looks solid; I'm entering a long position here.`,
+    SELL: `Market looks overextended with RSI at ${rsi}, taking profits now before a reversal.`,
+    HOLD: `Trend is too choppy (${trend}) right now. Better to sit on our hands and wait for a clear setup.`
+  };
+
+  const reasoning = reasoningMap[action];
 
   return {
     action,

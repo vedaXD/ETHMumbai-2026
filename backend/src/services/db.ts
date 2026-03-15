@@ -21,6 +21,8 @@ interface Agent {
   walletId: string;
   walletAddress: string;
   ensName: string | null;
+  tagline?: string;
+  allowedCryptos?: string[];
   ownerAddress: string;  // MetaMask address of owner (lowercase)
   coin: string;
   createdAt: string;
