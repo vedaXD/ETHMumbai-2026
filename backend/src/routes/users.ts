@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { BitGoServerService } from '../services/bitgo';
 import { db } from '../services/db';
+import { AgentStore } from '../database/agentStore';
 
 const router = Router();
 
@@ -59,8 +60,17 @@ router.get('/:address/vault', (req: Request, res: Response) => {
  * Get all agents belonging to a user.
  */
 router.get('/:address/agents', (req: Request, res: Response) => {
-  const agents = db.getAgentsByOwner(req.params.address);
-  return res.json({ success: true, agents });
+  const userAgents = db.getAgentsByOwner(req.params.address);
+  const mockAgents = AgentStore.list().filter(a => a.id.startsWith('agent-mock')).map(a => ({
+    ...a,
+    agentId: a.id,
+    ownerAddress: req.params.address.toLowerCase()
+  }));
+  // Ensure we don't duplicate if a mock agent somehow gets into userAgents
+  const merged = [...userAgents, ...mockAgents as any[]].filter((agent, index, self) => 
+    index === self.findIndex((a: any) => (a.agentId || a.id) === (agent.agentId || agent.id))
+  );
+  return res.json({ success: true, agents: merged });
 });
 
 /**

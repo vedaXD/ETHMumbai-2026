@@ -7,7 +7,7 @@ const router = Router();
 // POST /api/bitgo/wallets — create agent wallet + persist to DB
 router.post('/wallets', async (req: Request, res: Response) => {
   try {
-    const { agentId, agentName, maxSpendLimit, ownerAddress, personality, ensName } = req.body;
+    const { agentId, agentName, maxSpendLimit, ownerAddress, personality, ensName, tagline, allowedCryptos } = req.body;
     if (!agentId || !agentName) {
       return res.status(400).json({ error: 'agentId and agentName are required' });
     }
@@ -20,6 +20,8 @@ router.post('/wallets', async (req: Request, res: Response) => {
         agentId,
         name: agentName,
         personality: personality || 'Unknown',
+        tagline: tagline || '',
+        allowedCryptos: allowedCryptos || [],
         walletId: wallet.walletId,
         walletAddress: wallet.address,
         ensName: ensName || null,

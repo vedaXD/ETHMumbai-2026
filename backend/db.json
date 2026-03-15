@@ -1,0 +1,18 @@
+{
+  "users": {},
+  "agents": {
+    "test_1773534961460": {
+      "agentId": "test_1773534961460",
+      "name": "test",
+      "personality": "risk_taker",
+      "tagline": "guardian of tester",
+      "allowedCryptos": [],
+      "walletId": "69b5ff02810dc016825617d7ac872cbf",
+      "walletAddress": "0x35906494e811da8e8b3bcd95ef12256b9e66c182",
+      "ensName": null,
+      "ownerAddress": "0x4cad382572c51bf90a0402e00b7882d25a161ae0",
+      "coin": "tbaseeth",
+      "createdAt": "2026-03-15T00:36:19.297Z"
+    }
+  }
+}

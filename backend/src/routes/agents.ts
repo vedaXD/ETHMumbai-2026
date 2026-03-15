@@ -70,6 +70,9 @@ router.post('/', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'budget must be a positive number' });
   }
 
+  // Generate a mock stealth address for the demo
+  const mockStealthAddress = '0x' + Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+
   const agent: Agent = {
     id: crypto.randomUUID(),
     userId,
@@ -82,6 +85,7 @@ router.post('/', (req: Request, res: Response) => {
     maxDailyTrades: Number(maxDailyTrades) || 10,
     status: 'active',
     battleScore: 0,
+    currentStealthAddress: mockStealthAddress,
     createdAt: new Date().toISOString(),
     tradeHistory: [],
   };
@@ -126,7 +130,7 @@ router.delete('/:id', (req: Request, res: Response) => {
 
 // ─── POST /api/agents/battle ─────────────────────────────────────────────────
 router.post('/battle', async (req: Request, res: Response) => {
-  const { agentId1, agentId2 } = req.body as { agentId1: string; agentId2: string };
+  const { agentId1, agentId2, stakeAmount } = req.body as { agentId1: string; agentId2: string; stakeAmount?: number };
 
   if (!agentId1 || !agentId2) {
     return res.status(400).json({ error: 'agentId1 and agentId2 are required' });
@@ -138,8 +142,14 @@ router.post('/battle', async (req: Request, res: Response) => {
   if (!agent1) return res.status(404).json({ error: `Agent ${agentId1} not found` });
   if (!agent2) return res.status(404).json({ error: `Agent ${agentId2} not found` });
 
+  // Optional: Verify agents have enough balance to stake
+  const stake = Number(stakeAmount) || 0;
+  if (stake > 0 && (agent1.remainingBudget < stake || agent2.remainingBudget < stake)) {
+    return res.status(400).json({ error: 'One or both agents have insufficient USDC to stake this amount.' });
+  }
+
   try {
-    const result = await runBattle(agent1, agent2);
+    const result = await runBattle(agent1, agent2, stake);
     return res.json(result);
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
@@ -218,6 +228,59 @@ router.post('/:id/cycle', async (req: Request, res: Response) => {
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }
+});
+
+// ─── POST /api/agents/:id/fund ───────────────────────────────────────────────
+router.post('/:id/fund', (req: Request, res: Response) => {
+  const agent = AgentStore.get(req.params.id);
+  if (!agent) return res.status(404).json({ error: 'Agent not found' });
+
+  const { amount } = req.body;
+  if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
+
+  const updated = AgentStore.update(req.params.id, {
+    budget: agent.budget + Number(amount),
+    remainingBudget: agent.remainingBudget + Number(amount),
+  });
+  return res.json({ success: true, agent: updated });
+});
+
+// ─── POST /api/agents/:id/withdraw ───────────────────────────────────────────
+router.post('/:id/withdraw', (req: Request, res: Response) => {
+  const agent = AgentStore.get(req.params.id);
+  if (!agent) return res.status(404).json({ error: 'Agent not found' });
+
+  const { amount } = req.body;
+  if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
+
+  if (agent.remainingBudget < Number(amount)) {
+    return res.status(400).json({ error: 'Insufficient funds' });
+  }
+
+  const updated = AgentStore.update(req.params.id, {
+    budget: agent.budget - Number(amount),
+    remainingBudget: agent.remainingBudget - Number(amount),
+  });
+  return res.json({ success: true, agent: updated });
+});
+
+// ─── POST /api/agents/:id/faucet ─────────────────────────────────────────────
+router.post('/:id/faucet', (req: Request, res: Response) => {
+  const agent = AgentStore.get(req.params.id);
+  if (!agent) return res.status(404).json({ error: 'Agent not found' });
+
+  // Add a flat $10,000 mock faucet amount
+  const FAUCET_AMOUNT = 10000;
+  
+  const updated = AgentStore.update(req.params.id, {
+    budget: agent.budget + FAUCET_AMOUNT,
+    remainingBudget: agent.remainingBudget + FAUCET_AMOUNT,
+  });
+  return res.json({ success: true, agent: updated, faucetAmount: FAUCET_AMOUNT });
 });
 
 export default router;

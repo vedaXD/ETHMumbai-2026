@@ -3,7 +3,8 @@ export type Personality =
   | 'safe_player'
   | 'balanced'
   | 'momentum_hunter'
-  | 'contrarian';
+  | 'contrarian'
+  | 'custom';
 
 export type AgentStatus = 'active' | 'paused' | 'stopped';
 export type TradeAction = 'BUY' | 'SELL' | 'HOLD';
@@ -61,10 +62,22 @@ export interface Agent {
   maxDailyTrades: number;
   status: AgentStatus;
   battleScore: number;
+  tagline?: string;         // Descriptive tagline for ENS
+  avatar?: string;          // URL to image/avatar for ENS
+  allowedCryptos?: string[];// Currencies the agent is permitted to swap
   walletAddress?: string;   // linked on-chain address (Base Sepolia)
+  currentStealthAddress?: string; // stealth address for demo
   lastTxHash?: string;      // most recent on-chain tx
   createdAt: string;
   tradeHistory: Trade[];
+}
+
+export interface BattleAgentDetails {
+  action: TradeAction;
+  confidence: number;
+  score: number;
+  reasoning: string;
+  swapStrategy: SwapStrategy;
 }
 
 export interface BattleResult {
@@ -74,6 +87,9 @@ export interface BattleResult {
   loserName: string;
   reasoning: string;
   timestamp: string;
+  marketData: MarketData;
+  agent1Details: BattleAgentDetails;
+  agent2Details: BattleAgentDetails;
 }
 
 export interface CollaborationRequest {

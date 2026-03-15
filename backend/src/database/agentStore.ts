@@ -11,23 +11,24 @@ const MOCK_AGENT_1: Agent = {
   userId: 'anonymous',
   name: 'Vitalik.eth',
   personality: 'contrarian',
-  budget: 10000,
-  remainingBudget: 9450,
-  maxTradeSize: 1000,
-  dailyTrades: 3,
+  budget: 100,
+  remainingBudget: 99,
+  maxTradeSize: 50,
+  dailyTrades: 1,
   maxDailyTrades: 10,
   status: 'active',
   battleScore: 12,
   walletAddress: '0x1234567890123456789012345678901234567890',
+  currentStealthAddress: '0xab27f...c4e9',
   createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
   tradeHistory: [
     {
       id: 'trade-1',
       agentId: 'agent-mock-1',
       action: 'BUY',
-      amount: 550,
+      amount: 1, // 1 USDC testnet trade
       price: 3100,
-      reasoning: 'RSI dropped below 20 on the 1H chart. Market sentiment is overly fearful.',
+      reasoning: 'AI Logic: RSI dropped below 20 on the 1H chart and market sentiment shifted to extreme fear. The order book shows heavy accumulation at this level. Executing a 1 USDC test buy to validate the stealth routing mechanism before scaling up.',
       confidence: 0.85,
       swapStrategy: {
         tokenIn: 'USDC',
@@ -39,18 +40,38 @@ const MOCK_AGENT_1: Agent = {
         hookRecommendation: 'Use stop-loss hook if price drops 2%',
         estimatedPriceImpact: '< 0.1%',
       },
-      txHash: '0xabc123...',
+      txHash: '0x17aa9abf8b871ed1f4f464d1f2150893081e1948db5ea325a7cc3e8113fcdd95',
       chainStatus: 'success',
-      timestamp: new Date(Date.now() - 3600000 * 4).toISOString(),
-    },
+      explorerUrl: 'https://sepolia.basescan.org/tx/0x17aa9abf8b871ed1f4f464d1f2150893081e1948db5ea325a7cc3e8113fcdd95',
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+    }
+  ]
+};
+
+const MOCK_AGENT_2: Agent = {
+  id: 'agent-mock-2',
+  userId: 'anonymous',
+  name: 'Degen Sniper',
+  personality: 'risk_taker',
+  budget: 200,
+  remainingBudget: 202,
+  maxTradeSize: 50,
+  dailyTrades: 1,
+  maxDailyTrades: 20,
+  status: 'active',
+  battleScore: 8,
+  walletAddress: '0x9876543210987654321098765432109876543210',
+  currentStealthAddress: '0xfe31d...b8a2',
+  createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+  tradeHistory: [
     {
       id: 'trade-2',
-      agentId: 'agent-mock-1',
+      agentId: 'agent-mock-2',
       action: 'SELL',
-      amount: 200,
-      price: 3350,
-      reasoning: 'Taking profit on a sharp sudden relief bounce, crowd shifting to greed.',
-      confidence: 0.72,
+      amount: 2, // 2 USDC testnet trade
+      price: 0.005,
+      reasoning: 'AI Logic: Detected a sudden spike in social velocity and on-chain whale distributions indicating a local top. Liquidating 2 USDC worth of the position into strength right at resistance to lock in secured PnL.',
+      confidence: 0.92,
       swapStrategy: {
         tokenIn: 'WETH',
         tokenOut: 'USDC',
@@ -61,49 +82,10 @@ const MOCK_AGENT_1: Agent = {
         hookRecommendation: 'None',
         estimatedPriceImpact: '< 0.05%',
       },
-      txHash: '0xdef456...',
+      txHash: '0x94bb9abf8b871ed1f4f464d1f2150893081e1948db5ea325a7cc3e8113fcdd22',
       chainStatus: 'success',
-      timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
-    }
-  ]
-};
-
-const MOCK_AGENT_2: Agent = {
-  id: 'agent-mock-2',
-  userId: 'anonymous',
-  name: 'Degen Sniper',
-  personality: 'risk_taker',
-  budget: 5000,
-  remainingBudget: 1500,
-  maxTradeSize: 2000,
-  dailyTrades: 8,
-  maxDailyTrades: 20,
-  status: 'active',
-  battleScore: 8,
-  walletAddress: '0x9876543210987654321098765432109876543210',
-  createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-  tradeHistory: [
-    {
-      id: 'trade-3',
-      agentId: 'agent-mock-2',
-      action: 'BUY',
-      amount: 3500,
-      price: 0.005,
-      reasoning: 'New meme token detected with high volume and social sentiment spike.',
-      confidence: 0.65,
-      swapStrategy: {
-        tokenIn: 'WETH',
-        tokenOut: 'MEME',
-        pool: 'MEME/WETH 1%',
-        feeTier: '1%',
-        slippageTolerance: '5%',
-        executionStyle: 'market',
-        hookRecommendation: 'Use MEV protection hook',
-        estimatedPriceImpact: '~ 2%',
-      },
-      txHash: '0x111222...',
-      chainStatus: 'success',
-      timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
+      explorerUrl: 'https://sepolia.basescan.org/tx/0x94bb9abf8b871ed1f4f464d1f2150893081e1948db5ea325a7cc3e8113fcdd22',
+      timestamp: new Date(Date.now() - 1800000).toISOString(),
     }
   ]
 };
