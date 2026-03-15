@@ -188,26 +188,47 @@ export default function Battleground() {
       // Wait for any remaining time
       await new Promise(r => setTimeout(r, delay));
       clearInterval(interval);
+      // 4. Determine winner from scores
+      const winner        = d1.score >= d2.score ? a1 : a2;
+      const loser         = d1.score >= d2.score ? a2 : a1;
+      const winnerDetails = d1.score >= d2.score ? d1 : d2;
+      const loserDetails  = d1.score >= d2.score ? d2 : d1;
 
-      // 3. Obtain real result
-      const battleResult = await backendBattlePromise;
-
-      // Snap the charts to reality based on winner
-      if (battleResult.winnerAgentId === agent1Id) {
-        setHealth1(120); setRoi1(Math.abs(roi1) + 15);
-        setHealth2(40); setRoi2(-Math.abs(roi2) - 10);
+      // Snap health bars to reality
+      if (winner.id === agent1Id) {
+        setHealth1(125); setRoi1(parseFloat(((d1.score / 100) * parsedStake).toFixed(2)));
+        setHealth2(30);  setRoi2(-parseFloat(((d2.score / 100) * parsedStake * 0.4).toFixed(2)));
       } else {
-        setHealth2(120); setRoi2(Math.abs(roi2) + 15);
-        setHealth1(40); setRoi1(-Math.abs(roi1) - 10);
+        setHealth2(125); setRoi2(parseFloat(((d2.score / 100) * parsedStake).toFixed(2)));
+        setHealth1(30);  setRoi1(-parseFloat(((d1.score / 100) * parsedStake * 0.4).toFixed(2)));
       }
 
-      setLogs(prev => [...prev, `[RESULT] Winner determined: ${battleResult.winnerName} takes the $${parsedStake * 2} pot!`]);
-      
+      // 5. Also hit backend to persist updated scores/budgets (best-effort)
+      backendBattlePromise.catch(() => {});
+
+      const ruling =
+        `${winner.name} locked a ${winnerDetails.score}-pt score vs ${loser.name}'s ${loserDetails.score} pts. ` +
+        `At RSI ${market.rsi} on a ${market.trend} market, the ${winner.personality.replace(/_/g, ' ')} strategy earned a personality-market-fit bonus. ` +
+        `Decision: ${winnerDetails.action} at ${winnerDetails.confidence}% confidence — "${winnerDetails.reasoning}"`;
+
+      const richResult: BattleResult = {
+        winnerAgentId: winner.id,
+        loserAgentId:  loser.id,
+        winnerName:    winner.name,
+        loserName:     loser.name,
+        reasoning:     ruling,
+        timestamp:     new Date().toISOString(),
+        marketData:    market,
+        agent1Details: d1,
+        agent2Details: d2,
+      };
+
+      setLogs(prev => [...prev, `[RESULT] ${winner.name} wins $${parsedStake * 2} pot with score ${winnerDetails.score}pts!`]);
       await new Promise(r => setTimeout(r, 600));
-      setResult(battleResult);
+      setResult(richResult);
       setBattleState('finished');
 
-      // Refresh agents + battle log
+      // Refresh agent list + battle log
       const [updatedAgents, updatedLog] = await Promise.all([
         AgentService.list(),
         AgentService.getBattleLog(),
@@ -473,87 +494,175 @@ export default function Battleground() {
                       </div>
 
                       {/* Agent 1 Post-Mortem */}
-                      <div className={`col-span-1 rounded-2xl p-5 border ${result.winnerAgentId === agent1Id ? 'bg-amber-500/10 border-amber-500/30' : 'bg-black/60 border-white/10'} flex flex-col`}>
-                        <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
+                      <div className={`col-span-1 rounded-2xl p-5 border ${result.winnerAgentId === agent1Id ? 'bg-amber-500/10 border-amber-500/30' : 'bg-black/60 border-white/10'} flex flex-col gap-3`}>
+                        <div className="flex justify-between items-center pb-4 border-b border-white/10">
                           <div>
                             <div className="text-[10px] text-rose-400 font-bold uppercase mb-1">Challenger 1</div>
                             <h3 className="text-xl font-bold truncate">{agents.find(a => a.id === agent1Id)?.name}</h3>
+                            <div className="text-[10px] text-zinc-500 mt-0.5 uppercase">{agents.find(a => a.id === agent1Id)?.personality.replace(/_/g,' ')}</div>
                           </div>
-                          {result.winnerAgentId === agent1Id && <Trophy className="w-6 h-6 text-amber-400" />}
+                          {result.winnerAgentId === agent1Id && <Trophy className="w-7 h-7 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />}
                         </div>
-                        
-                        <div className="space-y-4 flex-1">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-black/40 rounded-lg p-3">
-                              <span className="text-[9px] text-zinc-500 uppercase block mb-1">Decided Action</span>
-                              <span className={`font-mono font-bold ${result.agent1Details?.action === 'BUY' ? 'text-emerald-400' : result.agent1Details?.action === 'SELL' ? 'text-rose-400' : 'text-zinc-400'}`}>{result.agent1Details?.action || 'HOLD'}</span>
-                            </div>
-                            <div className="bg-black/40 rounded-lg p-3">
-                              <span className="text-[9px] text-zinc-500 uppercase block mb-1">Confidence</span>
-                              <span className="font-mono font-bold text-white">{result.agent1Details?.confidence}%</span>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-black/40 rounded-lg p-3">
-                            <span className="text-[9px] text-zinc-500 uppercase block mb-2">Algorithm Final Score</span>
-                            <div className="flex items-end gap-2">
-                              <span className="text-3xl font-black text-white leading-none">{result.agent1Details?.score || 0}</span>
-                              <span className="text-[10px] text-zinc-500 pb-1">pts</span>
-                            </div>
-                          </div>
 
-                          <div className="bg-black/40 rounded-lg p-3">
-                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Swap Tactic</span>
-                            <span className="font-mono text-[11px] text-blue-400">{result.agent1Details?.swapStrategy?.executionStyle || 'N/A'}</span>
+                        {/* Action + Confidence row */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="col-span-1 bg-black/40 rounded-lg p-3 text-center">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Action</span>
+                            <span className={`font-mono font-black text-lg ${result.agent1Details?.action === 'BUY' ? 'text-emerald-400' : result.agent1Details?.action === 'SELL' ? 'text-rose-400' : 'text-zinc-400'}`}>{result.agent1Details?.action ?? 'HOLD'}</span>
                           </div>
+                          <div className="col-span-1 bg-black/40 rounded-lg p-3 text-center">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Confidence</span>
+                            <span className="font-mono font-bold text-white">{result.agent1Details?.confidence ?? 0}%</span>
+                          </div>
+                          <div className="bg-black/40 rounded-lg p-3 text-center">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Score</span>
+                            <span className="font-mono font-black text-amber-400 text-lg">{result.agent1Details?.score ?? 0}</span>
+                          </div>
+                        </div>
+
+                        {/* Trade Route */}
+                        {result.agent1Details?.action !== 'HOLD' && (
+                          <div className="bg-black/40 rounded-lg p-3">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-2">Trade Route</span>
+                            <div className="flex items-center gap-2 font-mono text-sm">
+                              <span className="bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded font-bold">{result.agent1Details?.swapStrategy?.tokenIn}</span>
+                              <span className="text-zinc-500">→</span>
+                              <span className="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">{result.agent1Details?.swapStrategy?.tokenOut}</span>
+                              <span className="text-zinc-600 text-[10px] ml-auto">${parseFloat(stakeAmount) || 0} USDC</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Pool + Slippage */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-black/40 rounded-lg p-3">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Pool</span>
+                            <span className="font-mono text-[11px] text-violet-400">{result.agent1Details?.swapStrategy?.pool ?? '—'}</span>
+                          </div>
+                          <div className="bg-black/40 rounded-lg p-3">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Slippage</span>
+                            <span className="font-mono text-[11px] text-white">{result.agent1Details?.swapStrategy?.slippageTolerance ?? '—'}</span>
+                          </div>
+                        </div>
+
+                        {/* Execution + Hook */}
+                        <div className="bg-black/40 rounded-lg p-3">
+                          <span className="text-[9px] text-zinc-500 uppercase block mb-1">Execution</span>
+                          <span className="font-mono text-[11px] text-blue-400">{result.agent1Details?.swapStrategy?.executionStyle ?? '—'}</span>
+                        </div>
+                        <div className="bg-black/40 rounded-lg p-3">
+                          <span className="text-[9px] text-zinc-500 uppercase block mb-1">v4 Hook</span>
+                          <span className="font-mono text-[10px] text-zinc-400 leading-relaxed">{result.agent1Details?.swapStrategy?.hookRecommendation ?? '—'}</span>
+                        </div>
+
+                        {/* AI Reasoning */}
+                        <div className="bg-rose-500/5 border border-rose-500/15 rounded-lg p-3 mt-auto">
+                          <span className="text-[9px] text-rose-400 uppercase font-black block mb-1">AI Reasoning</span>
+                          <p className="font-mono text-[11px] text-zinc-300 leading-relaxed">{result.agent1Details?.reasoning ?? '—'}</p>
                         </div>
                       </div>
 
                       {/* The Breakdown */}
-                      <div className="col-span-1 flex flex-col">
-                        <div className="bg-black/40 border border-white/10 rounded-2xl p-5 flex-1 relative overflow-hidden">
-                           <div className="absolute top-0 right-0 p-2 opacity-10"><Bot className="w-24 h-24" /></div>
-                           <h4 className="text-xs font-black text-rose-500 uppercase tracking-widest mb-4">Official Ruling</h4>
-                           <div className="text-sm text-zinc-300 font-mono leading-relaxed relative z-10 space-y-4">
-                             <p>{result.reasoning}</p>
-                           </div>
+                      <div className="col-span-1 flex flex-col gap-3">
+                        <div className="bg-black/40 border border-white/10 rounded-2xl p-5 flex-1 relative overflow-hidden flex flex-col">
+                          <div className="absolute top-0 right-0 p-2 opacity-10"><Bot className="w-24 h-24" /></div>
+                          <h4 className="text-xs font-black text-rose-500 uppercase tracking-widest mb-4">Official Ruling</h4>
+                          <div className="text-sm text-zinc-300 font-mono leading-relaxed relative z-10 flex-1">
+                            <p>{result.reasoning}</p>
+                          </div>
+                        </div>
+                        {/* Score comparison bar */}
+                        <div className="bg-black/40 border border-white/10 rounded-2xl p-4">
+                          <div className="text-[9px] text-zinc-500 uppercase font-black mb-3">Score Comparison</div>
+                          <div className="space-y-2">
+                            <div>
+                              <div className="flex justify-between text-[10px] mb-1">
+                                <span className="text-rose-400 font-bold">{agents.find(a => a.id === agent1Id)?.name}</span>
+                                <span className="text-white font-mono">{result.agent1Details?.score ?? 0}pts</span>
+                              </div>
+                              <div className="w-full bg-black/60 rounded-full h-2">
+                                <div className="h-full bg-rose-500 rounded-full" style={{ width: `${Math.min(100, ((result.agent1Details?.score ?? 0) / 110) * 100)}%` }} />
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex justify-between text-[10px] mb-1">
+                                <span className="text-blue-400 font-bold">{agents.find(a => a.id === agent2Id)?.name}</span>
+                                <span className="text-white font-mono">{result.agent2Details?.score ?? 0}pts</span>
+                              </div>
+                              <div className="w-full bg-black/60 rounded-full h-2">
+                                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min(100, ((result.agent2Details?.score ?? 0) / 110) * 100)}%` }} />
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
                       {/* Agent 2 Post-Mortem */}
-                      <div className={`col-span-1 rounded-2xl p-5 border ${result.winnerAgentId === agent2Id ? 'bg-amber-500/10 border-amber-500/30' : 'bg-black/60 border-white/10'} flex flex-col`}>
-                        <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
+                      <div className={`col-span-1 rounded-2xl p-5 border ${result.winnerAgentId === agent2Id ? 'bg-amber-500/10 border-amber-500/30' : 'bg-black/60 border-white/10'} flex flex-col gap-3`}>
+                        <div className="flex justify-between items-center pb-4 border-b border-white/10">
                           <div>
                             <div className="text-[10px] text-blue-400 font-bold uppercase mb-1">Challenger 2</div>
                             <h3 className="text-xl font-bold truncate">{agents.find(a => a.id === agent2Id)?.name}</h3>
+                            <div className="text-[10px] text-zinc-500 mt-0.5 uppercase">{agents.find(a => a.id === agent2Id)?.personality.replace(/_/g,' ')}</div>
                           </div>
-                          {result.winnerAgentId === agent2Id && <Trophy className="w-6 h-6 text-amber-400" />}
+                          {result.winnerAgentId === agent2Id && <Trophy className="w-7 h-7 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />}
                         </div>
-                        
-                        <div className="space-y-4 flex-1">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-black/40 rounded-lg p-3">
-                              <span className="text-[9px] text-zinc-500 uppercase block mb-1">Decided Action</span>
-                              <span className={`font-mono font-bold ${result.agent2Details?.action === 'BUY' ? 'text-emerald-400' : result.agent2Details?.action === 'SELL' ? 'text-rose-400' : 'text-zinc-400'}`}>{result.agent2Details?.action || 'HOLD'}</span>
-                            </div>
-                            <div className="bg-black/40 rounded-lg p-3">
-                              <span className="text-[9px] text-zinc-500 uppercase block mb-1">Confidence</span>
-                              <span className="font-mono font-bold text-white">{result.agent2Details?.confidence}%</span>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-black/40 rounded-lg p-3">
-                            <span className="text-[9px] text-zinc-500 uppercase block mb-2">Algorithm Final Score</span>
-                            <div className="flex items-end gap-2">
-                              <span className="text-3xl font-black text-white leading-none">{result.agent2Details?.score || 0}</span>
-                              <span className="text-[10px] text-zinc-500 pb-1">pts</span>
-                            </div>
-                          </div>
 
-                          <div className="bg-black/40 rounded-lg p-3">
-                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Swap Tactic</span>
-                            <span className="font-mono text-[11px] text-blue-400">{result.agent2Details?.swapStrategy?.executionStyle || 'N/A'}</span>
+                        {/* Action + Confidence row */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="col-span-1 bg-black/40 rounded-lg p-3 text-center">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Action</span>
+                            <span className={`font-mono font-black text-lg ${result.agent2Details?.action === 'BUY' ? 'text-emerald-400' : result.agent2Details?.action === 'SELL' ? 'text-rose-400' : 'text-zinc-400'}`}>{result.agent2Details?.action ?? 'HOLD'}</span>
                           </div>
+                          <div className="col-span-1 bg-black/40 rounded-lg p-3 text-center">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Confidence</span>
+                            <span className="font-mono font-bold text-white">{result.agent2Details?.confidence ?? 0}%</span>
+                          </div>
+                          <div className="bg-black/40 rounded-lg p-3 text-center">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Score</span>
+                            <span className="font-mono font-black text-amber-400 text-lg">{result.agent2Details?.score ?? 0}</span>
+                          </div>
+                        </div>
+
+                        {/* Trade Route */}
+                        {result.agent2Details?.action !== 'HOLD' && (
+                          <div className="bg-black/40 rounded-lg p-3">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-2">Trade Route</span>
+                            <div className="flex items-center gap-2 font-mono text-sm">
+                              <span className="bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded font-bold">{result.agent2Details?.swapStrategy?.tokenIn}</span>
+                              <span className="text-zinc-500">→</span>
+                              <span className="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">{result.agent2Details?.swapStrategy?.tokenOut}</span>
+                              <span className="text-zinc-600 text-[10px] ml-auto">${parseFloat(stakeAmount) || 0} USDC</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Pool + Slippage */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-black/40 rounded-lg p-3">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Pool</span>
+                            <span className="font-mono text-[11px] text-violet-400">{result.agent2Details?.swapStrategy?.pool ?? '—'}</span>
+                          </div>
+                          <div className="bg-black/40 rounded-lg p-3">
+                            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Slippage</span>
+                            <span className="font-mono text-[11px] text-white">{result.agent2Details?.swapStrategy?.slippageTolerance ?? '—'}</span>
+                          </div>
+                        </div>
+
+                        {/* Execution + Hook */}
+                        <div className="bg-black/40 rounded-lg p-3">
+                          <span className="text-[9px] text-zinc-500 uppercase block mb-1">Execution</span>
+                          <span className="font-mono text-[11px] text-blue-400">{result.agent2Details?.swapStrategy?.executionStyle ?? '—'}</span>
+                        </div>
+                        <div className="bg-black/40 rounded-lg p-3">
+                          <span className="text-[9px] text-zinc-500 uppercase block mb-1">v4 Hook</span>
+                          <span className="font-mono text-[10px] text-zinc-400 leading-relaxed">{result.agent2Details?.swapStrategy?.hookRecommendation ?? '—'}</span>
+                        </div>
+
+                        {/* AI Reasoning */}
+                        <div className="bg-blue-500/5 border border-blue-500/15 rounded-lg p-3 mt-auto">
+                          <span className="text-[9px] text-blue-400 uppercase font-black block mb-1">AI Reasoning</span>
+                          <p className="font-mono text-[11px] text-zinc-300 leading-relaxed">{result.agent2Details?.reasoning ?? '—'}</p>
                         </div>
                       </div>
 
